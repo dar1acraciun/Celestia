@@ -4,6 +4,8 @@ import StarField from './components/StarField'
 import Home from './pages/Home'
 import Learn from './pages/Learn'
 import Identify from './pages/Identify'
+import Login from './pages/Login'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/identify" element={<Identify />} />
           </Routes>

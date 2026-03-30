@@ -10,8 +10,37 @@ function Navbar() {
         height: '72px',
       }}
     >
+      <div className="flex items-center gap-4 ml-auto">
 
-      <div className="flex items-center gap-8">
+        <Link
+          to="/login"
+          className="px-4 py-2 border"
+          style={{
+            borderColor: '#6366f1',
+            color: '#6366f1',
+            fontSize: '0.95rem',
+            fontWeight: 500,
+            borderRadius: '999px',
+          }}
+        >
+          Sign In
+        </Link>
+        <Link
+          to="/register"
+          className="px-4 py-2"
+          style={{
+            backgroundColor: '#6366f1',
+            color: '#ffffff',
+            fontSize: '0.95rem',
+            fontWeight: 500,
+            borderRadius: '999px',
+          }}
+        >
+          Get Started
+        </Link>
+      </div>
+
+      {/* <div className="flex items-center gap-8">
         <Link
           to="/learn"
           style={{ color: '#9999b3', fontSize: '0.95rem', fontWeight: 500 }}
@@ -26,7 +55,7 @@ function Navbar() {
         >
           Identify
         </Link>
-      </div>
+      </div> */}
     </nav>
   )
 }
