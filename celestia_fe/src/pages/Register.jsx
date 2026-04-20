@@ -1,7 +1,42 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/fullLogo.png'
+import { registerUser } from '../api'
 
 function Register() {
+  const navigate = useNavigate()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      await registerUser(email, password)
+      navigate('/login')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputStyle = {
+    width: '100%',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '10px',
+    padding: '10px 14px',
+    color: '#ffffff',
+    fontSize: '0.95rem',
+    outline: 'none',
+    boxSizing: 'border-box',
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div
@@ -25,7 +60,7 @@ function Register() {
           Start exploring the stars
         </p>
 
-        <div className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label style={{ color: '#9999b3', fontSize: '0.85rem', display: 'block', marginBottom: '6px' }}>
               Name
@@ -33,17 +68,9 @@ function Register() {
             <input
               type="text"
               placeholder="Your name"
-              style={{
-                width: '100%',
-                backgroundColor: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '10px',
-                padding: '10px 14px',
-                color: '#ffffff',
-                fontSize: '0.95rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
+              value={name}
+              onChange={e => setName(e.target.value)}
+              style={inputStyle}
             />
           </div>
 
@@ -54,17 +81,10 @@ function Register() {
             <input
               type="email"
               placeholder="you@example.com"
-              style={{
-                width: '100%',
-                backgroundColor: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '10px',
-                padding: '10px 14px',
-                color: '#ffffff',
-                fontSize: '0.95rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              style={inputStyle}
             />
           </div>
 
@@ -75,36 +95,36 @@ function Register() {
             <input
               type="password"
               placeholder="••••••••"
-              style={{
-                width: '100%',
-                backgroundColor: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '10px',
-                padding: '10px 14px',
-                color: '#ffffff',
-                fontSize: '0.95rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              style={inputStyle}
             />
           </div>
 
+          {error && (
+            <p style={{ color: '#f87171', fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>
+          )}
+
           <button
+            type="submit"
+            disabled={loading}
             style={{
-              backgroundColor: '#6366f1',
+              backgroundColor: loading ? '#4b4ef0' : '#6366f1',
               color: '#ffffff',
               border: 'none',
               borderRadius: '999px',
               padding: '12px',
               fontSize: '0.95rem',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               marginTop: '8px',
+              opacity: loading ? 0.7 : 1,
             }}
           >
-            Sign Up
+            {loading ? 'Creating account…' : 'Sign Up'}
           </button>
-        </div>
+        </form>
 
         <p style={{ color: '#9999b3', fontSize: '0.85rem', textAlign: 'center', marginTop: '24px' }}>
           Already have an account?{' '}

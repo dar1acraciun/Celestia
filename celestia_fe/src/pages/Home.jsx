@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import logo from "../assets/fullLogo.png"
 import Features from '../components/Features'
 import HowItWorks from "../components/HowItWorks"
@@ -35,7 +36,8 @@ function Home() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button
+          <Link
+            to="/skymap"
             className="px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105"
             style={{
               background: '#0d2857',
@@ -45,9 +47,10 @@ function Home() {
             }}
           >
             Start Learning
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/identify"
             className="px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105"
             style={{
               background: 'transparent',
@@ -58,7 +61,7 @@ function Home() {
             }}
           >
             Try Identifying
-          </button>
+          </Link>
         </div>
       </div>
 

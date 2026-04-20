@@ -1,0 +1,82 @@
+openapi: 3.0.1
+info:
+  title: Celestia Auth API
+  version: 1.0.0
+
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+  /auth/register:
+    post:
+      operationId: register
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        "201":
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User registered successfully
+
+

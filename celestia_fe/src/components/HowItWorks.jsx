@@ -85,6 +85,18 @@ function Step({ icon, title, description, index, isLast }) {
 }
 
 function HowItWorks() {
+  const headerRef = useRef(null)
+  const [headerVisible, setHeaderVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeaderVisible(entry.isIntersecting),
+      { threshold: 0.3 }
+    )
+    if (headerRef.current) observer.observe(headerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   const steps = [
     {
       icon: <Upload size={32} color="#a78bfa" strokeWidth={2} />,
@@ -106,7 +118,15 @@ function HowItWorks() {
   return (
     <section className="py-32 px-6 relative">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-20">
+        <div
+          ref={headerRef}
+          className="text-center mb-20"
+          style={{
+            opacity: headerVisible ? 1 : 0,
+            transform: headerVisible ? 'translateY(0)' : 'translateY(30px)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
+          }}
+        >
           <h2
             className="mb-4"
             style={{
