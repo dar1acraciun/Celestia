@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Celestia Auth API
+  title: Celestia API
   version: 1.0.0
 
 paths:
@@ -41,6 +41,151 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegisterResponse'
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Current authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /images/upload:
+    post:
+      operationId: uploadImage
+      tags:
+        - Images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageUploadResponse'
+
+  /constellations:
+    get:
+      operationId: getAllConstellations
+      tags:
+        - Constellations
+      summary: Get a list of all constellation names and abbreviations
+      responses:
+        "200":
+          description: List of all constellations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstellationListResponse'
+
+  /constellations/{name}:
+    get:
+      operationId: getConstellation
+      tags:
+        - Constellations
+      summary: Get detailed information about a specific constellation
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            example: Orion
+      responses:
+        "200":
+          description: Constellation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstellationResponse'
+        "404":
+          description: Constellation not found
+
+  /constellations/{name}/chat:
+    post:
+      operationId: chatWithConstellation
+      tags:
+        - Constellations
+      summary: Chat with Gemini about a specific constellation
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            example: Orion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        "200":
+          description: Gemini reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+
+  /history:
+    post:
+      operationId: addHistory
+      tags:
+        - History
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoryRequest'
+      responses:
+        "201":
+          description: History entry saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryEntryResponse'
+
+    get:
+      operationId: getHistory
+      tags:
+        - History
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: List of history entries for the authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryListResponse'
 
 components:
   schemas:
@@ -58,9 +203,12 @@ components:
     RegisterRequest:
       type: object
       required:
+        - username
         - email
         - password
       properties:
+        username:
+          type: string
         email:
           type: string
         password:
@@ -79,4 +227,210 @@ components:
           type: string
           example: User registered successfully
 
+    HistoryRequest:
+      type: object
+      required:
+        - gnn
+      properties:
+        gnn:
+          $ref: '#/components/schemas/GnnResult'
+        astrometry:
+          $ref: '#/components/schemas/AstrometryResult'
+        imageName:
+          type: string
+          example: photo.jpg
+        imageUrl:
+          type: string
+          example: https://res.cloudinary.com/demo/image/upload/sample.jpg
 
+    ImageUploadResponse:
+      type: object
+      properties:
+        url:
+          type: string
+
+    HistoryEntryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        gnn:
+          $ref: '#/components/schemas/GnnResult'
+        astrometry:
+          $ref: '#/components/schemas/AstrometryResult'
+        imageName:
+          type: string
+        imageUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    HistoryListResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntryResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+    UserResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          example: daria@example.com
+        username:
+          type: string
+          example: daria
+        createdAt:
+          type: string
+          format: date-time
+
+    GnnResult:
+      type: object
+      properties:
+        constellation:
+          type: string
+          example: Andromeda
+        confidence:
+          type: number
+          format: float
+          example: 0.949
+        top5:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstellationScore'
+
+    AstrometryResult:
+      type: object
+      properties:
+        constellation:
+          type: string
+          example: Circinus
+        objects_in_field:
+          type: array
+          items:
+            type: string
+          example:
+            - "The star β TrA"
+            - "The constellation Apus (Aps)"
+
+    ConstellationListResponse:
+      type: object
+      properties:
+        constellations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstellationSummary'
+
+    ConstellationSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Orion
+        abbreviation:
+          type: string
+          example: Ori
+        hemisphere:
+          type: string
+          example: northern
+
+    ConstellationResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Orion
+        abbreviation:
+          type: string
+          example: Ori
+        description:
+          type: string
+          example: Orion is a prominent constellation on the celestial equator and one of the most recognizable in the night sky.
+        mythology:
+          type: string
+          example: In Greek mythology, Orion was a giant huntsman placed among the stars by Zeus.
+        mainStars:
+          type: array
+          items:
+            type: string
+          example: ["Betelgeuse", "Rigel", "Bellatrix", "Mintaka", "Alnilam", "Alnitak"]
+        hemisphere:
+          type: string
+          example: northern
+        bestVisibilityMonth:
+          type: string
+          example: January
+        area:
+          type: number
+          format: float
+          description: Area in square degrees
+          example: 594.1
+        imageUrl:
+          type: string
+        brightestStar:
+          type: string
+          example: Betelgeuse (mag 0.42)
+        visibleLatitudes:
+          type: string
+          example: "+79° to -67°"
+        quadrant:
+          type: string
+          example: NQ1
+        nearestConstellations:
+          type: array
+          items:
+            type: string
+        notableObjects:
+          type: array
+          items:
+            type: string
+        meteorShowers:
+          type: array
+          items:
+            type: string
+
+    ConstellationScore:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Andromeda
+        confidence:
+          type: number
+          format: float
+          example: 0.949
+
+    ChatMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+        content:
+          type: string
+
+    ChatRequest:
+      type: object
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+
+    ChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string

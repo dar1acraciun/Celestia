@@ -110,7 +110,7 @@ function Register() {
             type="submit"
             disabled={loading}
             style={{
-              backgroundColor: loading ? '#4b4ef0' : '#6366f1',
+              backgroundColor: loading ? '#0a1f42' : '#0d2857',
               color: '#ffffff',
               border: 'none',
               borderRadius: '999px',
@@ -128,7 +128,7 @@ function Register() {
 
         <p style={{ color: '#9999b3', fontSize: '0.85rem', textAlign: 'center', marginTop: '24px' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#6366f1' }}>
+          <Link to="/login" style={{ color: '#0d2857' }}>
             Sign in
           </Link>
         </p>

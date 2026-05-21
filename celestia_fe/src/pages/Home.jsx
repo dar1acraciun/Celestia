@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import logo from "../assets/fullLogo.png"
 import Features from '../components/Features'
+import SkyMapSection from '../components/SkyMapSection'
 import HowItWorks from "../components/HowItWorks"
 import Footer from "../components/Footer"
 import CallToAction from '../components/CallToAction'
@@ -68,6 +69,7 @@ function Home() {
     </section>
     <Features />
     <HowItWorks />
+    <SkyMapSection />
     <CallToAction />
     <Footer />
     </>

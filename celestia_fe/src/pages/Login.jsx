@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/fullLogo.png'
 import { loginUser } from '../api'
+import { useAuth } from '../context/AuthContext'
 
 function Login() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -16,6 +18,7 @@ function Login() {
     setLoading(true)
     try {
       await loginUser(email, password)
+      login(email)
       navigate('/')
     } catch (err) {
       setError(err.message)
@@ -96,7 +99,7 @@ function Login() {
             type="submit"
             disabled={loading}
             style={{
-              backgroundColor: loading ? '#4b4ef0' : '#6366f1',
+              backgroundColor: loading ? '#0a1f42' : '#0d2857',
               color: '#ffffff',
               border: 'none',
               borderRadius: '999px',
@@ -114,7 +117,7 @@ function Login() {
 
         <p style={{ color: '#9999b3', fontSize: '0.85rem', textAlign: 'center', marginTop: '24px' }}>
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: '#6366f1' }}>
+          <Link to="/register" style={{ color: '#0d2857' }}>
             Sign up
           </Link>
         </p>

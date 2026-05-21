@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Upload, Sparkles, CheckCircle } from 'lucide-react'
+import { ScanSearch, Network, GitCompare } from 'lucide-react'
 
 function Step({ icon, title, description, index, isLast }) {
   const [isVisible, setIsVisible] = useState(false)
@@ -99,19 +99,19 @@ function HowItWorks() {
 
   const steps = [
     {
-      icon: <Upload size={32} color="#a78bfa" strokeWidth={2} />,
-      title: 'Upload a Photo',
-      description: 'Take or upload a photo of the night sky from anywhere in the world',
+      icon: <ScanSearch size={32} color="#a78bfa" strokeWidth={2} />,
+      title: 'Star Detection',
+      description: 'The image is scanned to extract individual stars — their positions, brightness, and relative distances form a geometric graph.',
     },
     {
-      icon: <Sparkles size={32} color="#a78bfa" strokeWidth={2} />,
-      title: 'AI Analyzes',
-      description: 'Our AI processes the image and identifies stars and patterns in seconds',
+      icon: <Network size={32} color="#a78bfa" strokeWidth={2} />,
+      title: 'Graph Neural Network',
+      description: 'A GNN model trained on all 88 official constellations analyzes the star graph and predicts the best match with a confidence score.',
     },
     {
-      icon: <CheckCircle size={32} color="#a78bfa" strokeWidth={2} />,
-      title: 'See Results',
-      description: 'Get identified constellations with mythology, names, and celestial information',
+      icon: <GitCompare size={32} color="#a78bfa" strokeWidth={2} />,
+      title: 'Plate Solving',
+      description: 'In parallel, Astrometry.net cross-references the star field against a global sky catalog for an independent, coordinate-based verification.',
     },
   ]
 
@@ -136,10 +136,10 @@ function HowItWorks() {
               color: '#e8e8f0',
             }}
           >
-            How It Works
+            How the AI Identifies
           </h2>
           <p style={{ fontSize: '1.125rem', color: '#9999b3' }}>
-            From photo to constellation in three simple steps
+            Two independent models working together for accurate results
           </p>
         </div>
 

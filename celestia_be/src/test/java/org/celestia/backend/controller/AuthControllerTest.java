@@ -3,7 +3,9 @@ package org.celestia.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.celestia.backend.exception.InvalidCredentialsException;
 import org.celestia.backend.exception.UserAlreadyExistException;
+import org.celestia.backend.repository.UserRepository;
 import org.celestia.backend.service.AuthService;
+import org.celestia.backend.service.CookieService;
 import org.celestia.backend.service.JwtService;
 import org.celestia.generated.model.LoginRequest;
 import org.celestia.generated.model.RegisterRequest;
@@ -15,7 +17,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAut
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
@@ -28,21 +29,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         value = AuthController.class,
         excludeAutoConfiguration = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class}
 )
-@TestPropertySource(properties = {
-        "security.jwt.exp-time=86400000",
-        "security.cookie.secure=false"
-})
 class AuthControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
 
     @MockBean AuthService authService;
+    @MockBean CookieService cookieService;
     @MockBean JwtService jwtService;
+    @MockBean UserRepository userRepository;
 
     @Test
     void login_success_returns200AndSetsCookie() throws Exception {
         when(authService.login(any())).thenReturn("jwt-token");
+        when(cookieService.buildAuthCookie("jwt-token")).thenReturn("token=jwt-token; Path=/; HttpOnly; SameSite=Lax");
 
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
@@ -72,6 +72,8 @@ class AuthControllerTest {
 
     @Test
     void logout_returns200AndClearsCookie() throws Exception {
+        when(cookieService.buildClearCookie()).thenReturn("token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax");
+
         mockMvc.perform(post("/auth/logout"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")));

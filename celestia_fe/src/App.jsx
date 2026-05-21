@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import StarField from './components/StarField'
 import Home from './pages/Home'
@@ -9,6 +10,9 @@ import Identify from './pages/Identify'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import SkyMap from './pages/skyMap'
+import Profile from './pages/Profile'
+import HistoryDetail from './pages/HistoryDetail'
+import ConstellationDetail from './pages/ConstellationDetail'
 
 function App() {
   useEffect(() => {
@@ -20,6 +24,7 @@ function App() {
     })
   }, [])
   return (
+    <AuthProvider>
     <BrowserRouter>
       <div style={{ position: 'relative', minHeight: '100vh' }}>
         <StarField />
@@ -31,10 +36,14 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/identify" element={<Identify />} />
              <Route path="/skymap" element={<SkyMap />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/history/:id" element={<HistoryDetail />} />
+              <Route path="/constellation/:name" element={<ConstellationDetail />} />
           </Routes>
         </div>
       </div>
     </BrowserRouter>
+    </AuthProvider>
   )
 }
 

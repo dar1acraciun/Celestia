@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import * as tr from 'three'
 // ── Calcule astronomice ───────────────────────────────────────────────────────
 const toJD = (date) => {
@@ -119,6 +120,8 @@ export default function SkyMap() {
   const hoverRef    = useRef(null)
   const labelsRef   = useRef([])     // { sprite, pos3d } pentru fiecare constelatie
   const meteorsRef  = useRef([])
+  const conNamesRef = useRef({})     // abr → full name
+  const navigate    = useNavigate()
   const [status,  setStatus]  = useState('Se obține locația GPS...')
   const [tooltip, setTooltip] = useState(null)
 
@@ -231,6 +234,10 @@ export default function SkyMap() {
         fetch('/data/data/stars_full.json').then(r => r.json()),
         fetch('/data/data/constellations.json').then(r => r.json()),
       ]).then(([stars, constellations]) => {
+
+        Object.entries(constellations).forEach(([abr, con]) => {
+          conNamesRef.current[abr.toLowerCase()] = con.name
+        })
 
         const byHip = {}
         stars.forEach(s => { byHip[s.hip] = s })
@@ -371,13 +378,14 @@ export default function SkyMap() {
       }
       updateCamera()
 
-      let dragging = false, lastX = 0, lastY = 0
+      let dragging = false, lastX = 0, lastY = 0, didDrag = false
 
-      const onDown = e => { dragging = true; lastX = e.clientX; lastY = e.clientY }
+      const onDown = e => { dragging = true; didDrag = false; lastX = e.clientX; lastY = e.clientY }
       const onUp   = () => { dragging = false }
 
       const onMove = e => {
         if (dragging) {
+          didDrag = true
           view.az  = (view.az  + (e.clientX - lastX) * 0.3 + 360) % 360
           view.alt = Math.max(-10, Math.min(88, view.alt - (e.clientY - lastY) * 0.3))
           lastX = e.clientX; lastY = e.clientY
@@ -415,8 +423,30 @@ export default function SkyMap() {
 
       const onLeave = () => {
         if (hoverRef.current) hoverRef.current.visible = false
-setTooltip(null)
+        setTooltip(null)
       }
+
+      const onClick = e => {
+        if (didDrag) { didDrag = false; return }
+        const rect = mount.getBoundingClientRect()
+        const mx = e.clientX - rect.left
+        const my = e.clientY - rect.top
+        const W = rect.width, H = rect.height
+        let bestDist = 18, bestStar = null
+        starDataRef.current.forEach(sd => {
+          const v = sd.pos.clone().project(cameraRef.current)
+          const sx = (v.x + 1) / 2 * W
+          const sy = (-v.y + 1) / 2 * H
+          if (v.z > 1) return
+          const d = Math.sqrt((sx - mx) ** 2 + (sy - my) ** 2)
+          if (d < bestDist) { bestDist = d; bestStar = sd }
+        })
+        if (bestStar) {
+          const fullName = conNamesRef.current[bestStar.con?.toLowerCase()]
+          if (fullName) navigate(`/constellation/${encodeURIComponent(fullName)}`)
+        }
+      }
+
       // ── Scroll zoom ──────────────────────────────────────────────────────
       const onWheel = e => {
         camera.fov = Math.max(20, Math.min(90, camera.fov + e.deltaY * 0.05))
@@ -449,6 +479,7 @@ setTooltip(null)
 
       mount.addEventListener('mousedown',  onDown)
       mount.addEventListener('mouseleave', onLeave)
+      mount.addEventListener('click',      onClick)
       mount.addEventListener('wheel',      onWheel, { passive: true })
       window.addEventListener('mouseup',   onUp)
       window.addEventListener('mousemove', onMove)
@@ -512,6 +543,7 @@ setTooltip(null)
         cancelAnimationFrame(animId)
         mount.removeEventListener('mousedown',  onDown)
         mount.removeEventListener('mouseleave', onLeave)
+        mount.removeEventListener('click',      onClick)
         mount.removeEventListener('wheel',      onWheel)
         window.removeEventListener('mouseup',   onUp)
         window.removeEventListener('mousemove', onMove)
@@ -570,6 +602,11 @@ setTooltip(null)
           {spectralType(tooltip.star.ci) && (
             <div style={{ color: '#7a9ccc', fontSize: 11 }}>
               {spectralType(tooltip.star.ci)}
+            </div>
+          )}
+          {conNamesRef.current[tooltip.star.con?.toLowerCase()] && (
+            <div style={{ color: '#4a90d9', fontSize: 11, marginTop: 4 }}>
+              click to view constellation
             </div>
           )}
         </div>
