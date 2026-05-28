@@ -4,8 +4,6 @@ python-dotenv
 gunicorn
 torch
 torch-geometric
-torch-scatter
-torch-sparse
 opencv-python-headless
 numpy
 scipy
