@@ -324,7 +324,25 @@ def visualize_detection(img, stars, edges, brightness_vals, prediction=None):
 # Predicție GNN
 # ═══════════════════════════════════════════════════════════════
 
-def predict_constellation(graph, model_path, top_k=5, device="cpu", return_top=False):
+def load_model(model_path, device="cpu"):
+    """Încarcă modelul GNN o singură dată și îl returnează cached."""
+    in_channels = 9
+    num_classes = len(CONSTELLATION_NAMES)
+    model = ConstellationGINE(
+        in_channels=in_channels,
+        hidden_channels=HIDDEN_DIM,
+        num_classes=num_classes,
+        num_layers=4,
+        dropout=DROPOUT,
+        edge_dim=EDGE_DIM,
+    )
+    model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
+    model.eval()
+    model.to(device)
+    return model
+
+
+def predict_constellation(graph, model_path, top_k=5, device="cpu", return_top=False, preloaded_model=None):
     """Rulează modelul GNN pe un graf PyG și returnează predicția."""
 
     # Feature engineering
@@ -334,17 +352,20 @@ def predict_constellation(graph, model_path, top_k=5, device="cpu", return_top=F
 
     num_classes = len(CONSTELLATION_NAMES)
 
-    model = ConstellationGINE(
-        in_channels=in_channels,
-        hidden_channels=HIDDEN_DIM,
-        num_classes=num_classes,
-        num_layers=4,
-        dropout=DROPOUT,
-        edge_dim=EDGE_DIM,
-    )
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.eval()
-    model.to(device)
+    if preloaded_model is not None:
+        model = preloaded_model
+    else:
+        model = ConstellationGINE(
+            in_channels=in_channels,
+            hidden_channels=HIDDEN_DIM,
+            num_classes=num_classes,
+            num_layers=4,
+            dropout=DROPOUT,
+            edge_dim=EDGE_DIM,
+        )
+        model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
+        model.eval()
+        model.to(device)
 
     graph = graph.to(device)
     batch = torch.zeros(graph.x.size(0), dtype=torch.long, device=device)

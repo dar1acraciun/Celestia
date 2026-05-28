@@ -22,10 +22,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(SCRIPT_DIR, '.env'))
 sys.path.insert(0, os.path.join(SCRIPT_DIR, 'model'))
 
-from run_pipeline import detect_stars, build_pyg_graph, predict_constellation
+from run_pipeline import detect_stars, build_pyg_graph, predict_constellation, load_model
 from draw_constellation_lines import get_official_edges
 
 MODEL_PATH = os.path.join(SCRIPT_DIR, 'model', 'best_constellation_gine (5).pt')
+
+print("Loading model into memory...")
+_MODEL = load_model(MODEL_PATH)
+print("Model loaded.")
 ASTROMETRY_API_KEY = os.environ.get('ASTROMETRY_API_KEY', '')
 ASTROMETRY_BASE = 'https://nova.astrometry.net/api'
 
@@ -66,7 +70,7 @@ def _gnn_predict(tmp_path):
     stars, brightness_vals, edges, img, _ = detect_stars(tmp_path)
     graph = build_pyg_graph(stars, brightness_vals, edges, img.shape)
     best_name, best_prob, top5 = predict_constellation(
-        graph, MODEL_PATH, top_k=5, return_top=True
+        graph, MODEL_PATH, top_k=5, return_top=True, preloaded_model=_MODEL
     )
     coords_3d = graph.x[:, :3].numpy()
     line_edges = get_official_edges(coords_3d, best_name)
