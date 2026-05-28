@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, Sparkles } from 'lucide-react'
-import { chatWithConstellation } from '../api'
+import { chatWithConstellation, saveChatSession } from '../api'
+import { useAuth } from '../context/AuthContext'
 
 export default function ConstellationChat({ constellationName, onClose }) {
+  const { isLoggedIn } = useAuth()
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -13,6 +15,9 @@ export default function ConstellationChat({ constellationName, onClose }) {
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
+  const messagesRef = useRef(messages)
+
+  useEffect(() => { messagesRef.current = messages }, [messages])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -45,11 +50,20 @@ export default function ConstellationChat({ constellationName, onClose }) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
   }
 
+  const handleClose = () => {
+    const current = messagesRef.current
+    const hasUserMessage = current.some(m => m.role === 'user')
+    if (isLoggedIn && hasUserMessage) {
+      saveChatSession(constellationName, current).catch(() => {})
+    }
+    onClose()
+  }
+
   return (
     <>
       {/* Backdrop */}
       <div
-        onClick={onClose}
+        onClick={handleClose}
         style={{
           position: 'fixed', inset: 0,
           background: 'rgba(0,0,0,0.5)',
@@ -88,7 +102,7 @@ export default function ConstellationChat({ constellationName, onClose }) {
             </span>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9999b3', padding: '0.2rem' }}
           >
             <X size={18} />

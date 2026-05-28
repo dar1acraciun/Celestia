@@ -138,6 +138,27 @@ function ConstellationDetail() {
               <InfoBadge label="Best visibility" value={constellation.bestVisibilityMonth} />
               <InfoBadge label="Area" value={constellation.area ? `${constellation.area} deg²` : null} />
             </div>
+
+            {/* NASA images */}
+            {constellation.nasaImages?.length > 0 && (
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                {constellation.nasaImages.map((url, i) => (
+                  <img
+                    key={i}
+                    src={url}
+                    alt={`${constellation.name} NASA image ${i + 1}`}
+                    style={{
+                      width: '100%',
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(255,255,255,0.07)',
+                      objectFit: 'cover',
+                      maxHeight: '180px',
+                    }}
+                    onError={e => e.currentTarget.style.display = 'none'}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right — text content */}

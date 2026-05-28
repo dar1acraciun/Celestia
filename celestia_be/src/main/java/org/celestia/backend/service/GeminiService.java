@@ -42,9 +42,13 @@ public class GeminiService {
             List<String> meteorShowers
     ) {}
 
-    public ConstellationInfo generateConstellationInfo(String constellationName) {
+    public ConstellationInfo generateConstellationInfo(String constellationName, String nasaContext) {
+        String contextSection = nasaContext != null && !nasaContext.isBlank()
+                ? "\n\nHere is real NASA data about this constellation to base your response on:\n" + nasaContext
+                : "";
+
         String prompt = """
-                You are an expert astronomer and mythologist. Generate comprehensive information about the %s constellation.
+                You are an expert astronomer and mythologist. Generate comprehensive information about the %s constellation.%s
                 Respond with ONLY a raw JSON object, no markdown, no code blocks, no extra text. Use exactly these fields:
                 {
                   "description": "4-6 sentences: location in sky, brightest/notable stars with spectral type and distance, notable deep-sky objects, best observation conditions",
@@ -52,12 +56,12 @@ public class GeminiService {
                   "brightestStar": "Star name (mag X.XX) — one brightest star with its apparent magnitude",
                   "visibleLatitudes": "Between +XX° and -XX° — exact latitude range where the constellation is visible",
                   "quadrant": "NQ1/NQ2/NQ3/NQ4 or SQ1/SQ2/SQ3/SQ4 — the celestial quadrant",
-                  "nearestConstellations": ["Name1", "Name2", "Name3"] — array of 3-5 bordering constellation names,
-                  "notableObjects": ["Object name — brief description", ...] — array of 2-4 notable deep-sky objects (nebulae, galaxies, clusters) with Messier/NGC designations,
-                  "meteorShowers": ["Shower name"] — array of meteor showers that radiate from this constellation, empty array if none
+                  "nearestConstellations": ["Name1", "Name2", "Name3"],
+                  "notableObjects": ["Object name — brief description"],
+                  "meteorShowers": ["Shower name"]
                 }
-                Be scientifically accurate. Use real, verified astronomical data.
-                """.formatted(constellationName);
+                Be scientifically accurate. Use the NASA data where provided.
+                """.formatted(constellationName, contextSection);
 
         try {
             String content = chat(List.of(

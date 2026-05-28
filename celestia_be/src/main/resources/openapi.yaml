@@ -143,6 +143,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ChatResponse'
 
+  /history/chats:
+    post:
+      operationId: saveChatSession
+      tags:
+        - History
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveChatRequest'
+      responses:
+        "201":
+          description: Chat session saved
+
+    get:
+      operationId: getChatSessions
+      tags:
+        - History
+      responses:
+        "200":
+          description: List of saved chat sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSessionListResponse'
+
   /history:
     post:
       operationId: addHistory
@@ -375,6 +402,10 @@ components:
           example: 594.1
         imageUrl:
           type: string
+        nasaImages:
+          type: array
+          items:
+            type: string
         brightestStar:
           type: string
           example: Betelgeuse (mag 0.42)
@@ -434,3 +465,39 @@ components:
       properties:
         reply:
           type: string
+
+    SaveChatRequest:
+      type: object
+      required:
+        - constellationName
+        - messages
+      properties:
+        constellationName:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+
+    ChatSessionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        constellationName:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        createdAt:
+          type: string
+          format: date-time
+
+    ChatSessionListResponse:
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatSessionResponse'

@@ -19,13 +19,16 @@ public class ConstellationService {
     private final ConstellationRepository constellationRepository;
     private final ConstellationMapper constellationMapper;
     private final GeminiService geminiService;
+    private final NasaService nasaService;
 
     public ConstellationService(ConstellationRepository constellationRepository,
                                 ConstellationMapper constellationMapper,
-                                GeminiService geminiService) {
+                                GeminiService geminiService,
+                                NasaService nasaService) {
         this.constellationRepository = constellationRepository;
         this.constellationMapper = constellationMapper;
         this.geminiService = geminiService;
+        this.nasaService = nasaService;
     }
 
     public ConstellationResponse getConstellation(String name) {
@@ -45,8 +48,20 @@ public class ConstellationService {
     }
 
     private void enrichFromGemini(Constellation constellation) {
-        log.info("Enriching {} via Groq", constellation.getName());
-        GeminiService.ConstellationInfo info = geminiService.generateConstellationInfo(constellation.getName());
+        log.info("Enriching {} — fetching NASA data", constellation.getName());
+        NasaService.NasaResult nasa = nasaService.fetchConstellationData(constellation.getName());
+
+        // Save NASA image URLs
+        if (!nasa.images().isEmpty()) {
+            constellation.setNasaImages(
+                    nasa.images().stream().map(NasaService.NasaImage::url).toList()
+            );
+        }
+
+        log.info("Enriching {} — calling Groq with NASA context", constellation.getName());
+        GeminiService.ConstellationInfo info = geminiService.generateConstellationInfo(
+                constellation.getName(), nasa.context()
+        );
         if (info.description()           != null) constellation.setDescription(info.description());
         if (info.mythology()             != null) constellation.setMythology(info.mythology());
         if (info.brightestStar()         != null) constellation.setBrightestStar(info.brightestStar());

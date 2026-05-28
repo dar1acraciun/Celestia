@@ -25,7 +25,8 @@ public class Constellation {
     private Double area;
     private String imageUrl;
 
-    // Enriched by Groq
+    // Enriched by NASA + Groq
+    private List<String> nasaImages;
     private String brightestStar;
     private String visibleLatitudes;
     private String quadrant;

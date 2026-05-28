@@ -81,3 +81,17 @@ export const chatWithConstellation = (name, messages) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages }),
   }).then(res => res.json())
+
+export const saveChatSession = (constellationName, messages) =>
+  fetch(`${BASE_URL}/history/chats`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ constellationName, messages }),
+  })
+
+export const getChatSessions = () =>
+  fetch(`${BASE_URL}/history/chats`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(res => res.json())
