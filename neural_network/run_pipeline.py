@@ -46,7 +46,7 @@ from train_gcnv2 import (
 # train_gcn.py setează matplotlib backend la "Agg" (non-GUI).
 # Îl resetăm la TkAgg pentru a putea afișa figuri interactiv.
 import matplotlib
-matplotlib.use("TkAgg")
+matplotlib.use("Agg")
 
 # ═══════════════════════════════════════════════════════════════
 # Parametri Computer Vision (identici cu copVis.py)
