@@ -29,7 +29,7 @@ public class CookieService {
                 .secure(secureCookie)
                 .path("/")
                 .maxAge(maxAge)
-                .sameSite("Lax")
+                .sameSite(secureCookie ? "None" : "Lax")
                 .build()
                 .toString();
     }
