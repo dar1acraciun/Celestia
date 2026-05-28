@@ -33,6 +33,25 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/health', methods=['GET'])
+def health():
+    try:
+        import torch
+        import torch_geometric
+        torch_version = torch.__version__
+        pyg_version = torch_geometric.__version__
+        model_exists = os.path.exists(MODEL_PATH)
+        return jsonify({
+            'status': 'ok',
+            'torch': torch_version,
+            'torch_geometric': pyg_version,
+            'model_exists': model_exists,
+            'model_path': MODEL_PATH,
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
+
+
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 def _save_temp(file):
