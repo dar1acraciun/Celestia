@@ -137,25 +137,42 @@ function Identify() {
   const [gnnLoading, setGnnLoading] = useState(false)
   const [astroResult, setAstroResult] = useState(null)
   const [astroLoading, setAstroLoading] = useState(false)
+  const [imagePreview, setImagePreview] = useState(null)
+  const generationRef = useRef(0)
+
+  const handleNewPrediction = () => {
+    generationRef.current += 1
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImagePreview(null)
+    setGnnResult(null)
+    setAstroResult(null)
+    setGnnLoading(false)
+    setAstroLoading(false)
+  }
 
   const handleImageUpload = async (file) => {
+  generationRef.current += 1
+  const gen = generationRef.current
+
+  if (imagePreview) URL.revokeObjectURL(imagePreview)
+  setImagePreview(URL.createObjectURL(file))
   setGnnResult(null)
   setAstroResult(null)
   setGnnLoading(true)
   setAstroLoading(true)
 
   const gnnPromise = predictGNN(file)
-    .then((data) => { setGnnResult({ data }); return data })
-    .catch((err) => { setGnnResult({ error: err.message }); return null })
-    .finally(() => setGnnLoading(false))
+    .then((data) => { if (generationRef.current === gen) setGnnResult({ data }); return data })
+    .catch((err) => { if (generationRef.current === gen) setGnnResult({ error: err.message }); return null })
+    .finally(() => { if (generationRef.current === gen) setGnnLoading(false) })
 
   const astroPromise = predictAstrometry(file)
-    .then((data) => { setAstroResult({ data }); return data })
-    .catch((err) => { setAstroResult({ error: err.message }); return null })
-    .finally(() => setAstroLoading(false))
+    .then((data) => { if (generationRef.current === gen) setAstroResult({ data }); return data })
+    .catch((err) => { if (generationRef.current === gen) setAstroResult({ error: err.message }); return null })
+    .finally(() => { if (generationRef.current === gen) setAstroLoading(false) })
 
     Promise.all([gnnPromise, astroPromise]).then(([gnnData, astroData]) => {
-      if (gnnData && isLoggedIn) {
+      if (generationRef.current === gen && gnnData && isLoggedIn) {
         uploadImage(file)
           .then(({ url }) => addHistory(gnnData, astroData, url))
           .catch(() => addHistory(gnnData, astroData, file.name))
@@ -178,7 +195,33 @@ function Identify() {
           </p>
         </div>
 
-        <UploadZone onImageUpload={handleImageUpload} />
+        {imagePreview ? (
+          <div className="mb-12">
+            <div style={{
+              borderRadius: '1.5rem',
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.1)',
+              position: 'relative',
+            }}>
+              <img
+                src={imagePreview}
+                alt="Uploaded sky"
+                style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', display: 'block' }}
+              />
+            </div>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={handleNewPrediction}
+                className="px-6 py-2 rounded-lg transition-all duration-300 hover:scale-105"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                New prediction
+              </button>
+            </div>
+          </div>
+        ) : (
+          <UploadZone onImageUpload={handleImageUpload} />
+        )}
 
         {showCards && (
           <div className="flex flex-col gap-6">

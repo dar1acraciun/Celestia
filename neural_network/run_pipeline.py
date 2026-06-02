@@ -326,7 +326,8 @@ def visualize_detection(img, stars, edges, brightness_vals, prediction=None):
 
 def load_model(model_path, device="cpu"):
     """Încarcă modelul GNN o singură dată și îl returnează cached."""
-    in_channels = 9
+    state_dict = torch.load(model_path, map_location=device, weights_only=False)
+    in_channels = state_dict['layers.0.mlp.0.weight'].shape[1]
     num_classes = len(CONSTELLATION_NAMES)
     model = ConstellationGINE(
         in_channels=in_channels,
@@ -336,7 +337,7 @@ def load_model(model_path, device="cpu"):
         dropout=DROPOUT,
         edge_dim=EDGE_DIM,
     )
-    model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
+    model.load_state_dict(state_dict)
     model.eval()
     model.to(device)
     return model
