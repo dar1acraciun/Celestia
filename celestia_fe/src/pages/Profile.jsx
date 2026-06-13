@@ -37,11 +37,11 @@ function Profile() {
     : null
 
   return (
-    <div className="min-h-screen px-6 py-32">
+    <div className="min-h-screen px-4 sm:px-6 py-24 sm:py-32">
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ marginBottom: '3rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{
               width: '56px', height: '56px', borderRadius: '50%',
@@ -102,6 +102,7 @@ function Profile() {
                   border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '1rem', padding: '1.25rem 1.5rem',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  gap: '1rem', flexWrap: 'wrap',
                   cursor: 'pointer', transition: 'border-color 0.2s, background 0.2s',
                 }}
                 onMouseEnter={e => {

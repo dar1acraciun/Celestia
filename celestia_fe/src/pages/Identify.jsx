@@ -51,7 +51,7 @@ function UploadZone({ onImageUpload }) {
           backdropFilter: 'blur(10px)',
           border: isDragging ? '2px dashed #0d2857' : '2px dashed rgba(255, 255, 255, 0.2)',
           borderRadius: '1.5rem',
-          padding: '4rem 2rem',
+          padding: 'clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)',
           textAlign: 'center',
         }}
       >
@@ -102,7 +102,7 @@ function UploadZone({ onImageUpload }) {
 
 function LoadingCard({ label }) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1.5rem', padding: '2rem', color: '#ffffff' }}>
+    <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1.5rem', padding: 'clamp(1.25rem, 4vw, 2rem)', color: '#ffffff' }}>
       <p style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', color: '#9999b3', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
         {label}
       </p>
@@ -183,7 +183,7 @@ function Identify() {
   const showCards = gnnLoading || astroLoading || gnnResult || astroResult
 
   return (
-    <div className="min-h-screen px-6 py-32">
+    <div className="min-h-screen px-4 sm:px-6 py-24 sm:py-32">
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
@@ -230,7 +230,7 @@ function Identify() {
             {gnnLoading ? (
               <LoadingCard label="GNN Model" />
             ) : gnnResult && (
-              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1.5rem', padding: '2rem', color: '#ffffff' }}>
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1.5rem', padding: 'clamp(1.25rem, 4vw, 2rem)', color: '#ffffff' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', color: '#9999b3', textTransform: 'uppercase', marginBottom: '1rem' }}>
                   GNN Model
                 </p>
@@ -268,7 +268,7 @@ function Identify() {
             {astroLoading ? (
               <LoadingCard label="Astrometry.net" />
             ) : astroResult && (
-              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1.5rem', padding: '2rem', color: '#ffffff' }}>
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1.5rem', padding: 'clamp(1.25rem, 4vw, 2rem)', color: '#ffffff' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', color: '#9999b3', textTransform: 'uppercase', marginBottom: '1rem' }}>
                   Astrometry.net
                 </p>

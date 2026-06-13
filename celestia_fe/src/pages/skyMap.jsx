@@ -453,6 +453,72 @@ export default function SkyMap() {
         camera.updateProjectionMatrix()
       }
 
+      // ── Touch: drag pentru rotire, pinch pentru zoom ─────────────────────
+      let pinchDist = 0
+      const touchDist = (t) => {
+        const dx = t[0].clientX - t[1].clientX
+        const dy = t[0].clientY - t[1].clientY
+        return Math.sqrt(dx * dx + dy * dy)
+      }
+
+      const onTouchStart = e => {
+        if (e.touches.length === 1) {
+          dragging = true; didDrag = false
+          lastX = e.touches[0].clientX; lastY = e.touches[0].clientY
+        } else if (e.touches.length === 2) {
+          dragging = false
+          pinchDist = touchDist(e.touches)
+        }
+      }
+
+      const onTouchMove = e => {
+        if (e.touches.length === 1 && dragging) {
+          didDrag = true
+          const t = e.touches[0]
+          view.az  = (view.az  + (t.clientX - lastX) * 0.3 + 360) % 360
+          view.alt = Math.max(-10, Math.min(88, view.alt - (t.clientY - lastY) * 0.3))
+          lastX = t.clientX; lastY = t.clientY
+        } else if (e.touches.length === 2) {
+          const newDist = touchDist(e.touches)
+          if (pinchDist > 0) {
+            // apropiere degete (pinch in) → zoom in (fov mai mic)
+            camera.fov = Math.max(20, Math.min(90, camera.fov - (newDist - pinchDist) * 0.15))
+            camera.updateProjectionMatrix()
+          }
+          pinchDist = newDist
+        }
+      }
+
+      const onTouchEnd = e => {
+        if (e.touches.length === 0) {
+          dragging = false
+          pinchDist = 0
+          // tap (fără drag) → navighează spre constelație, ca la click
+          if (!didDrag && e.changedTouches.length === 1) {
+            const t = e.changedTouches[0]
+            const rect = mount.getBoundingClientRect()
+            const mx = t.clientX - rect.left, my = t.clientY - rect.top
+            const W = rect.width, H = rect.height
+            let bestDist = 28, bestStar = null
+            starDataRef.current.forEach(sd => {
+              const v = sd.pos.clone().project(cameraRef.current)
+              const sx = (v.x + 1) / 2 * W
+              const sy = (-v.y + 1) / 2 * H
+              if (v.z > 1) return
+              const d = Math.sqrt((sx - mx) ** 2 + (sy - my) ** 2)
+              if (d < bestDist) { bestDist = d; bestStar = sd }
+            })
+            if (bestStar) {
+              const fullName = conNamesRef.current[bestStar.con?.toLowerCase()]
+              if (fullName) navigate(`/constellation/${encodeURIComponent(fullName)}`)
+            }
+          }
+        } else if (e.touches.length === 1) {
+          pinchDist = 0
+          lastX = e.touches[0].clientX; lastY = e.touches[0].clientY
+        }
+      }
+
       // ── Shooting stars ────────────────────────────────────────────────────
       const spawnMeteor = () => {
         const phi   = Math.random() * Math.PI * 0.5
@@ -477,10 +543,18 @@ export default function SkyMap() {
         meteorsRef.current.push({ line, geo, start, dir, t: 0, dur: 1.2 + Math.random() * 0.8 })
       }
 
+      const onTouchMovePrevent = e => {
+        if (e.touches.length >= 1) e.preventDefault()  // blochează scroll-ul paginii
+        onTouchMove(e)
+      }
+
       mount.addEventListener('mousedown',  onDown)
       mount.addEventListener('mouseleave', onLeave)
       mount.addEventListener('click',      onClick)
       mount.addEventListener('wheel',      onWheel, { passive: true })
+      mount.addEventListener('touchstart', onTouchStart, { passive: true })
+      mount.addEventListener('touchmove',  onTouchMovePrevent, { passive: false })
+      mount.addEventListener('touchend',   onTouchEnd)
       window.addEventListener('mouseup',   onUp)
       window.addEventListener('mousemove', onMove)
 
@@ -545,6 +619,9 @@ export default function SkyMap() {
         mount.removeEventListener('mouseleave', onLeave)
         mount.removeEventListener('click',      onClick)
         mount.removeEventListener('wheel',      onWheel)
+        mount.removeEventListener('touchstart', onTouchStart)
+        mount.removeEventListener('touchmove',  onTouchMovePrevent)
+        mount.removeEventListener('touchend',   onTouchEnd)
         window.removeEventListener('mouseup',   onUp)
         window.removeEventListener('mousemove', onMove)
       }
@@ -565,7 +642,7 @@ export default function SkyMap() {
 
   return (
     <div style={{ position: 'fixed', inset: 0 }}>
-      <div ref={mountRef} style={{ position: 'absolute', inset: 0, cursor: 'grab' }} />
+      <div ref={mountRef} style={{ position: 'absolute', inset: 0, cursor: 'grab', touchAction: 'none' }} />
 
       {status && (
         <div style={{

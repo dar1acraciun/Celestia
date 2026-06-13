@@ -19,8 +19,8 @@ function Home() {
         <img
           src={logo}
           alt="Celestia"
-          className="mb-2 mx-auto"
-          style={{ height: '350px', width: '350px', objectFit: 'contain', marginBottom: '-140px' }}
+          className="mb-2 mx-auto w-56 h-56 sm:w-[350px] sm:h-[350px] -mb-20 sm:-mb-[140px]"
+          style={{ objectFit: 'contain' }}
         />
 
         <p

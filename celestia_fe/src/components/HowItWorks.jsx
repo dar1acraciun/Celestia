@@ -116,11 +116,11 @@ function HowItWorks() {
   ]
 
   return (
-    <section className="py-32 px-6 relative">
+    <section className="py-20 sm:py-32 px-6 relative">
       <div className="max-w-6xl mx-auto">
         <div
           ref={headerRef}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-20"
           style={{
             opacity: headerVisible ? 1 : 0,
             transform: headerVisible ? 'translateY(0)' : 'translateY(30px)',

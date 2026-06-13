@@ -40,11 +40,11 @@ function FadeBox({ children, delay = 0 }) {
 
 function Features() {
   return (
-    <section className="py-32 px-6" style={{ background: 'transparent' }}>
+    <section className="py-20 sm:py-32 px-6" style={{ background: 'transparent' }}>
       <div className="max-w-6xl mx-auto">
 
         <FadeBox>
-          <div className="mb-20 text-center">
+          <div className="mb-12 sm:mb-20 text-center">
             <h2 style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: 'clamp(2rem, 4vw, 3rem)',
@@ -63,7 +63,7 @@ function Features() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
           <FadeBox delay={0}>
-            <div className="p-8 rounded-2xl" style={{
+            <div className="p-6 sm:p-8 rounded-2xl" style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.08)',
             }}>
@@ -78,7 +78,7 @@ function Features() {
           </FadeBox>
 
           <FadeBox delay={150}>
-            <div className="p-8 rounded-2xl" style={{
+            <div className="p-6 sm:p-8 rounded-2xl" style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.08)',
             }}>
@@ -93,7 +93,7 @@ function Features() {
           </FadeBox>
 
           <FadeBox delay={300}>
-            <div className="p-8 rounded-2xl" style={{
+            <div className="p-6 sm:p-8 rounded-2xl" style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.08)',
             }}>

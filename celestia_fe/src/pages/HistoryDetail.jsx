@@ -29,7 +29,7 @@ function HistoryDetail() {
   if (!entry) return null
 
   return (
-    <div className="min-h-screen px-6 py-32">
+    <div className="min-h-screen px-4 sm:px-6 py-24 sm:py-32">
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
 
         {/* Back */}

@@ -18,7 +18,7 @@ function CallToAction() {
   }, [])
 
   return (
-    <section className="py-32 px-6 flex items-center justify-center">
+    <section className="py-20 sm:py-32 px-6 flex items-center justify-center">
       <div
         ref={ref}
         className="text-center transition-all duration-700"

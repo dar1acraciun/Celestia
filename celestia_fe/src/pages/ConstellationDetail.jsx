@@ -122,7 +122,7 @@ function ConstellationDetail() {
   }
 
   return (
-    <div className="min-h-screen px-6 py-28">
+    <div className="min-h-screen px-4 sm:px-6 py-24 sm:py-28">
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
         <button
@@ -163,25 +163,15 @@ function ConstellationDetail() {
           </div>
         </div>
 
-        {/* Two-column layout */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-          gap: '2rem',
-          alignItems: 'start',
-        }}>
+        {/* Two-column layout — o coloană pe mobil, două pe desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
           {/* Left — diagram */}
-          <div style={{ position: 'sticky', top: '6rem' }}>
+          <div className="lg:sticky" style={{ top: '6rem' }}>
             <ConstellationDiagram name={constellation.name} size={520} />
 
             {/* Info badges under diagram */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '0.6rem',
-              marginTop: '1rem',
-            }}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-4">
               <InfoBadge label="Hemisphere" value={constellation.hemisphere} />
               <InfoBadge label="Best visibility" value={constellation.bestVisibilityMonth} />
               <InfoBadge label="Area" value={constellation.area ? `${constellation.area} deg²` : null} />
@@ -322,7 +312,7 @@ function ConstellationDetail() {
       <button
         onClick={() => setChatOpen(true)}
         style={{
-          position: 'fixed', bottom: '2rem', right: '2rem',
+          position: 'fixed', bottom: '1.25rem', right: '1.25rem',
           background: 'linear-gradient(135deg, #1a3a6b, #4a90d9)',
           border: 'none', borderRadius: '3rem',
           padding: '0.75rem 1.25rem',
