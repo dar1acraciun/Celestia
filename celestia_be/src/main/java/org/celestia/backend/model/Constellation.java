@@ -26,7 +26,6 @@ public class Constellation {
     private String imageUrl;
     private String imageUrlNoLines;
 
-    // Enriched by NASA + Groq
     private List<String> nasaImages;
     private String brightestStar;
     private String visibleLatitudes;

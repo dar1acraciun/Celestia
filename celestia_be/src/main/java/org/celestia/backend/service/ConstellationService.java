@@ -12,9 +12,6 @@ import org.celestia.generated.model.ConstellationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,18 +25,15 @@ public class ConstellationService {
     private final ConstellationMapper constellationMapper;
     private final GroqService groqService;
     private final NasaService nasaService;
-    private final CloudinaryService cloudinaryService;
 
     public ConstellationService(ConstellationRepository constellationRepository,
                                 ConstellationMapper constellationMapper,
                                 GroqService groqService,
-                                NasaService nasaService,
-                                CloudinaryService cloudinaryService) {
+                                NasaService nasaService) {
         this.constellationRepository = constellationRepository;
         this.constellationMapper = constellationMapper;
         this.groqService = groqService;
         this.nasaService = nasaService;
-        this.cloudinaryService = cloudinaryService;
     }
 
     public ConstellationResponse getConstellation(String name) {
@@ -72,33 +66,7 @@ public class ConstellationService {
         return constellationMapper.toConstellationListResponse(all);
     }
 
-    public void uploadImages(String name, MultipartFile linesImage, MultipartFile nolinesImage) throws IOException {
-        Constellation constellation = constellationRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> new ConstellationNotFound("Constellation not found: " + name));
 
-        String safeName = name.replace(" ", "_");
-        String linesUrl = cloudinaryService.uploadConstellation(linesImage,
-                "celestia/constellations/" + safeName + "_lines");
-        String nolinesUrl = cloudinaryService.uploadConstellation(nolinesImage,
-                "celestia/constellations/" + safeName + "_nolines");
-
-        constellation.setImageUrl(linesUrl);
-        constellation.setImageUrlNoLines(nolinesUrl);
-        constellationRepository.save(constellation);
-        log.info("Uploaded images for {}", name);
-    }
-
-    public int resetNasaImages() {
-        List<Constellation> all = constellationRepository.findAll();
-        all.forEach(c -> {
-            c.setNasaImages(null);
-            c.setDescription(null);
-            c.setBrightestStar(null);
-        });
-        constellationRepository.saveAll(all);
-        log.info("Reset nasaImages + enrichment for {} constellations", all.size());
-        return all.size();
-    }
 
     private void enrichFromGroq(Constellation constellation) {
         log.info("Enriching {} — fetching NASA data", constellation.getName());

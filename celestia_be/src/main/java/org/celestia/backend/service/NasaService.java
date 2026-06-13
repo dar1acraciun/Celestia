@@ -12,7 +12,6 @@ public class NasaService {
 
     private static final Logger log = LoggerFactory.getLogger(NasaService.class);
 
-    // HiPS2FITS: proper REST API from CDS Strasbourg — returns JPEG directly
     private static final String HIPS2FITS_API = "https://alasky.u-strasbg.fr/hips-image-services/hips2fits";
     private static final int FIELD_OF_VIEW = 20;
     private static final int IMAGE_SIZE    = 600;
