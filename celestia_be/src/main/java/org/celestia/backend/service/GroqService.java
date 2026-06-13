@@ -2,6 +2,7 @@ package org.celestia.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.celestia.backend.model.ConstellationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class GeminiService {
+public class GroqService {
 
-    private static final Logger log = LoggerFactory.getLogger(GeminiService.class);
+    private static final Logger log = LoggerFactory.getLogger(GroqService.class);
     private static final String BASE_URL = "https://api.groq.com/openai/v1/chat/completions";
     private static final String MODEL = "llama-3.3-70b-versatile";
 
@@ -26,21 +27,10 @@ public class GeminiService {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
-    public GeminiService(ObjectMapper objectMapper) {
+    public GroqService(ObjectMapper objectMapper) {
         this.restClient = RestClient.create();
         this.objectMapper = objectMapper;
     }
-
-    public record ConstellationInfo(
-            String description,
-            String mythology,
-            String brightestStar,
-            String visibleLatitudes,
-            String quadrant,
-            List<String> nearestConstellations,
-            List<String> notableObjects,
-            List<String> meteorShowers
-    ) {}
 
     public ConstellationInfo generateConstellationInfo(String constellationName, String nasaContext) {
         String contextSection = nasaContext != null && !nasaContext.isBlank()

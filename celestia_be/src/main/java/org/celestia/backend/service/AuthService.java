@@ -20,11 +20,11 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, AuthMapper authMapper, PasswordEncoder passwordEncoder,JwtService jwtService) {
+    public AuthService(UserRepository userRepository, AuthMapper authMapper, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.authMapper = authMapper;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService =jwtService;
+        this.jwtService = jwtService;
     }
 
     public String login(LoginRequest loginRequest) {

@@ -402,6 +402,8 @@ components:
           example: 594.1
         imageUrl:
           type: string
+        imageUrlNoLines:
+          type: string
         nasaImages:
           type: array
           items:

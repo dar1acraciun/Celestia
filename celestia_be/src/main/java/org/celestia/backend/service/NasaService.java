@@ -1,11 +1,8 @@
 package org.celestia.backend.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,88 +11,59 @@ import java.util.List;
 public class NasaService {
 
     private static final Logger log = LoggerFactory.getLogger(NasaService.class);
-    private static final String NASA_API = "https://images-api.nasa.gov/search";
-    private static final int MAX_IMAGES = 3;
 
-    // Keywords that indicate non-astronomical content
-    private static final List<String> EXCLUDE_KEYWORDS = List.of(
-            "patch", "crew", "mission", "sts-", "sts ", "astronaut", "portrait",
-            "insignia", "emblem", "launch", "landing", "shuttle", "rocket", "nasa insignia"
+    // HiPS2FITS: proper REST API from CDS Strasbourg — returns JPEG directly
+    private static final String HIPS2FITS_API = "https://alasky.u-strasbg.fr/hips-image-services/hips2fits";
+    private static final int FIELD_OF_VIEW = 20;
+    private static final int IMAGE_SIZE    = 600;
+
+    private static final List<String[]> SURVEYS = List.of(
+            new String[]{"CDS/P/DSS2/red",  "Optical (DSS2 Red)"},
+            new String[]{"CDS/P/DSS2/blue", "Optical (DSS2 Blue)"},
+            new String[]{"CDS/P/2MASS/J",   "Near-Infrared (2MASS)"}
     );
 
-    // Keywords that indicate good astronomical content
-    private static final List<String> ASTRONOMY_KEYWORDS = List.of(
-            "nebula", "galaxy", "cluster", "star", "telescope", "hubble", "observation",
-            "constellation", "astronomical", "deep sky", "infrared", "optical", "image",
-            "chandra", "spitzer", "james webb", "jwst", "messier", "ngc"
-    );
+    private final CloudinaryService cloudinaryService;
 
-    private final RestClient restClient;
-    private final ObjectMapper objectMapper;
-
-    public NasaService(ObjectMapper objectMapper) {
-        this.restClient = RestClient.create();
-        this.objectMapper = objectMapper;
+    public NasaService(CloudinaryService cloudinaryService) {
+        this.cloudinaryService = cloudinaryService;
     }
 
     public record NasaImage(String url, String title, String description) {}
-
     public record NasaResult(List<NasaImage> images, String context) {}
 
     public NasaResult fetchConstellationData(String constellationName) {
-        try {
-            String query = constellationName.replace(" ", "+") + "+constellation";
-            String url = NASA_API + "?q=" + query + "&media_type=image&page_size=50";
+        List<NasaImage> images = new ArrayList<>();
 
-            String response = restClient.get()
-                    .uri(url)
-                    .header("User-Agent", "CelestiaApp/1.0")
-                    .retrieve()
-                    .body(String.class);
+        for (String[] survey : SURVEYS) {
+            if (images.size() >= 3) break;
+            try {
+                String hipsUrl  = buildHipsUrl(constellationName, survey[0]);
+                String publicId = "celestia/constellations/"
+                        + constellationName.toLowerCase().replace(" ", "_")
+                        + "_" + survey[1].toLowerCase().replace(" ", "_").replace("(", "").replace(")", "");
 
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode items = root.at("/collection/items");
-
-            List<NasaImage> images = new ArrayList<>();
-            StringBuilder context = new StringBuilder();
-
-            for (JsonNode item : items) {
-                if (images.size() >= MAX_IMAGES && context.length() > 3000) break;
-
-                JsonNode data = item.at("/data/0");
-                String title = data.has("title") ? data.get("title").asText("") : "";
-                String description = data.has("description") ? data.get("description").asText("") : "";
-                String combined = (title + " " + description).toLowerCase();
-
-                // Skip obvious non-astronomical content (mission patches, crew photos)
-                if (EXCLUDE_KEYWORDS.stream().anyMatch(combined::contains)) continue;
-
-                if (context.length() < 4000 && !title.isEmpty()) {
-                    context.append("Title: ").append(title).append("\n");
-                    if (!description.isEmpty()) {
-                        String shortDesc = description.length() > 400 ? description.substring(0, 400) + "..." : description;
-                        context.append("Description: ").append(shortDesc).append("\n\n");
-                    }
-                }
-
-                if (images.size() < MAX_IMAGES && item.has("links")) {
-                    JsonNode links = item.get("links");
-                    if (links.isArray() && links.size() > 0) {
-                        String imageUrl = links.get(0).at("/href").asText();
-                        if (!imageUrl.isEmpty()) {
-                            images.add(new NasaImage(imageUrl, title,
-                                    description.length() > 200 ? description.substring(0, 200) + "..." : description));
-                        }
-                    }
-                }
+                String cloudinaryUrl = cloudinaryService.uploadFromUrl(hipsUrl, publicId);
+                images.add(new NasaImage(cloudinaryUrl, constellationName + " — " + survey[1], ""));
+                log.info("HiPS2FITS uploaded {} / {} → {}", constellationName, survey[1], cloudinaryUrl);
+            } catch (Exception e) {
+                log.warn("HiPS2FITS failed for {} / {}: {}", constellationName, survey[1], e.getMessage());
             }
-
-            log.info("NASA: {} images, {} chars context for {}", images.size(), context.length(), constellationName);
-            return new NasaResult(images, context.toString());
-
-        } catch (Exception e) {
-            log.warn("NASA fetch failed for {}: {}", constellationName, e.getMessage());
-            return new NasaResult(List.of(), "");
         }
+
+        log.info("HiPS2FITS: {} images for {}", images.size(), constellationName);
+        return new NasaResult(images, "");
+    }
+
+    private String buildHipsUrl(String object, String hips) {
+        return HIPS2FITS_API
+                + "?hips="       + hips.replace("/", "%2F")
+                + "&object="     + object.replace(" ", "+")
+                + "&width="      + IMAGE_SIZE
+                + "&height="     + IMAGE_SIZE
+                + "&fov="        + FIELD_OF_VIEW
+                + "&projection=" + "TAN"
+                + "&coordsys="   + "icrs"
+                + "&format=jpg";
     }
 }

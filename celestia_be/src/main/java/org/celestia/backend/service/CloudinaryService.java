@@ -26,8 +26,20 @@ public class CloudinaryService {
     }
 
     public String upload(MultipartFile file) throws IOException {
-        Map result = cloudinary.uploader().upload(file.getBytes(),
+        Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap("folder", "celestia"));
+        return (String) result.get("secure_url");
+    }
+
+    public String uploadConstellation(MultipartFile file, String publicId) throws IOException {
+        Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(),
+                ObjectUtils.asMap("public_id", publicId, "overwrite", true));
+        return (String) result.get("secure_url");
+    }
+
+    public String uploadFromUrl(String imageUrl, String publicId) throws IOException {
+        Map<String, Object> result = cloudinary.uploader().upload(imageUrl,
+                ObjectUtils.asMap("public_id", publicId, "overwrite", true));
         return (String) result.get("secure_url");
     }
 }

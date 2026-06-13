@@ -23,4 +23,10 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(HttpStatus.BAD_REQUEST.value(),e.getMessage());
     }
 
+    @ExceptionHandler(value = ConstellationNotFound.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public @ResponseBody ErrorMessage constellattionNotFoundException(ConstellationNotFound e) {
+        return new ErrorMessage(HttpStatus.NOT_FOUND.value(),e.getMessage());
+    }
+
 }

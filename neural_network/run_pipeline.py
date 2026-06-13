@@ -1,3 +1,4 @@
+
 """
 Pipeline complet: Imagine → Detecție stele → Graf → Predicție constelație.
 
@@ -49,14 +50,14 @@ import matplotlib
 matplotlib.use("Agg")
 
 # ═══════════════════════════════════════════════════════════════
-# Parametri Computer Vision (identici cu copVis.py)
+# Parametri Computer Vision — identici cu generate_field_star_dataset.py
 # ═══════════════════════════════════════════════════════════════
-SKY_FRACTION = 0.97
-BORDER_MARGIN = 20
+SKY_FRACTION = 0.98        # training: 0.98
+BORDER_MARGIN = 10         # training: 5  (10 = compromis pentru marginile reale)
 GAUSSIAN_KERNEL = (5, 5)
-LOCAL_MAX_KERNEL = 11
-THRESH_STD_FACTOR = 4.0
-MIN_ABS_THRESHOLD = 80
+LOCAL_MAX_KERNEL = 9       # training: 9  (era 11 — kernel mai mare ratează stele mici)
+THRESH_STD_FACTOR = 3.0    # training: 3.0 (era 4.0 — pragul prea strict rata stele)
+MIN_ABS_THRESHOLD = 40.0   # training: 40  (era 80  — bloca detecția pe imagini dark)
 MIN_DIST = 14
 N_STARS = 10
 MAX_EDGE_LEN = 260

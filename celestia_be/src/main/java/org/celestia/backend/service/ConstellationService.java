@@ -1,15 +1,23 @@
 package org.celestia.backend.service;
 
+import org.celestia.backend.exception.ConstellationNotFound;
 import org.celestia.backend.mapper.ConstellationMapper;
 import org.celestia.backend.model.Constellation;
+import org.celestia.backend.model.ConstellationInfo;
 import org.celestia.backend.repository.ConstellationRepository;
+import org.celestia.generated.model.ChatRequest;
+import org.celestia.generated.model.ChatResponse;
 import org.celestia.generated.model.ConstellationListResponse;
 import org.celestia.generated.model.ConstellationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ConstellationService {
@@ -18,28 +26,45 @@ public class ConstellationService {
 
     private final ConstellationRepository constellationRepository;
     private final ConstellationMapper constellationMapper;
-    private final GeminiService geminiService;
+    private final GroqService groqService;
     private final NasaService nasaService;
+    private final CloudinaryService cloudinaryService;
 
     public ConstellationService(ConstellationRepository constellationRepository,
                                 ConstellationMapper constellationMapper,
-                                GeminiService geminiService,
-                                NasaService nasaService) {
+                                GroqService groqService,
+                                NasaService nasaService,
+                                CloudinaryService cloudinaryService) {
         this.constellationRepository = constellationRepository;
         this.constellationMapper = constellationMapper;
-        this.geminiService = geminiService;
+        this.groqService = groqService;
         this.nasaService = nasaService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public ConstellationResponse getConstellation(String name) {
         Constellation constellation = constellationRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> new RuntimeException("Constellation not found: " + name));
+                .orElseThrow(() -> new ConstellationNotFound("Constellation not found: " + name));
 
         if (constellation.getDescription() == null || constellation.getBrightestStar() == null) {
-            enrichFromGemini(constellation);
+            enrichFromGroq(constellation);
         }
 
         return constellationMapper.toConstellationResponse(constellation);
+    }
+
+    public ChatResponse chat(String constellationName, ChatRequest request) {
+        List<Map<String, String>> messages = request.getMessages().stream()
+                .map(m -> {
+                    Map<String, String> msg = new HashMap<>();
+                    msg.put("role", m.getRole());
+                    msg.put("content", m.getContent());
+                    return msg;
+                })
+                .toList();
+        ChatResponse response = new ChatResponse();
+        response.setReply(groqService.chat(constellationName, messages));
+        return response;
     }
 
     public ConstellationListResponse getAllConstellations() {
@@ -47,11 +72,38 @@ public class ConstellationService {
         return constellationMapper.toConstellationListResponse(all);
     }
 
-    private void enrichFromGemini(Constellation constellation) {
+    public void uploadImages(String name, MultipartFile linesImage, MultipartFile nolinesImage) throws IOException {
+        Constellation constellation = constellationRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new ConstellationNotFound("Constellation not found: " + name));
+
+        String safeName = name.replace(" ", "_");
+        String linesUrl = cloudinaryService.uploadConstellation(linesImage,
+                "celestia/constellations/" + safeName + "_lines");
+        String nolinesUrl = cloudinaryService.uploadConstellation(nolinesImage,
+                "celestia/constellations/" + safeName + "_nolines");
+
+        constellation.setImageUrl(linesUrl);
+        constellation.setImageUrlNoLines(nolinesUrl);
+        constellationRepository.save(constellation);
+        log.info("Uploaded images for {}", name);
+    }
+
+    public int resetNasaImages() {
+        List<Constellation> all = constellationRepository.findAll();
+        all.forEach(c -> {
+            c.setNasaImages(null);
+            c.setDescription(null);
+            c.setBrightestStar(null);
+        });
+        constellationRepository.saveAll(all);
+        log.info("Reset nasaImages + enrichment for {} constellations", all.size());
+        return all.size();
+    }
+
+    private void enrichFromGroq(Constellation constellation) {
         log.info("Enriching {} — fetching NASA data", constellation.getName());
         NasaService.NasaResult nasa = nasaService.fetchConstellationData(constellation.getName());
 
-        // Save NASA image URLs
         if (!nasa.images().isEmpty()) {
             constellation.setNasaImages(
                     nasa.images().stream().map(NasaService.NasaImage::url).toList()
@@ -59,17 +111,17 @@ public class ConstellationService {
         }
 
         log.info("Enriching {} — calling Groq with NASA context", constellation.getName());
-        GeminiService.ConstellationInfo info = geminiService.generateConstellationInfo(
+        ConstellationInfo info = groqService.generateConstellationInfo(
                 constellation.getName(), nasa.context()
         );
-        if (info.description()           != null) constellation.setDescription(info.description());
-        if (info.mythology()             != null) constellation.setMythology(info.mythology());
-        if (info.brightestStar()         != null) constellation.setBrightestStar(info.brightestStar());
-        if (info.visibleLatitudes()      != null) constellation.setVisibleLatitudes(info.visibleLatitudes());
-        if (info.quadrant()              != null) constellation.setQuadrant(info.quadrant());
+        if (info.description() != null) constellation.setDescription(info.description());
+        if (info.mythology() != null) constellation.setMythology(info.mythology());
+        if (info.brightestStar() != null) constellation.setBrightestStar(info.brightestStar());
+        if (info.visibleLatitudes() != null) constellation.setVisibleLatitudes(info.visibleLatitudes());
+        if (info.quadrant() != null) constellation.setQuadrant(info.quadrant());
         if (info.nearestConstellations() != null) constellation.setNearestConstellations(info.nearestConstellations());
-        if (info.notableObjects()        != null) constellation.setNotableObjects(info.notableObjects());
-        if (info.meteorShowers()         != null) constellation.setMeteorShowers(info.meteorShowers());
+        if (info.notableObjects() != null) constellation.setNotableObjects(info.notableObjects());
+        if (info.meteorShowers() != null) constellation.setMeteorShowers(info.meteorShowers());
         constellationRepository.save(constellation);
     }
 }

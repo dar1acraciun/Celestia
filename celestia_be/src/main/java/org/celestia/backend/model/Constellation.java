@@ -24,6 +24,7 @@ public class Constellation {
     private String bestVisibilityMonth;
     private Double area;
     private String imageUrl;
+    private String imageUrlNoLines;
 
     // Enriched by NASA + Groq
     private List<String> nasaImages;
