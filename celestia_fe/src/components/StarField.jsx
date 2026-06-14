@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 
 function StarField() {
   const canvasRef = useRef(null)
-  const mouseRef = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
     const canvas = canvasRef.current

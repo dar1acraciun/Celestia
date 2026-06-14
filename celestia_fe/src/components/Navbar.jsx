@@ -45,7 +45,6 @@ function Navbar() {
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}
     >
-      {/* Logo stânga */}
       <Link
         to="/"
         style={{
@@ -60,7 +59,7 @@ function Navbar() {
         Celestia
       </Link>
 
-      {/* Link-uri centru — doar pe desktop */}
+      {}
       <div className="hidden md:flex items-center gap-8" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
         {navLinks.map(link => (
           <Link key={link.to} to={link.to} style={navLink}
@@ -72,7 +71,7 @@ function Navbar() {
         ))}
       </div>
 
-      {/* Acțiuni desktop (sign in / avatar) */}
+      {}
       {!isLoggedIn ? (
         <div className="hidden md:flex items-center gap-4">
           <Link
@@ -177,7 +176,7 @@ function Navbar() {
         </div>
       )}
 
-      {/* Buton hamburger — doar pe mobil */}
+      {}
       <button
         className="md:hidden flex items-center justify-center"
         onClick={() => setMobileOpen(o => !o)}
@@ -193,7 +192,7 @@ function Navbar() {
         {mobileOpen ? <X size={26} /> : <Menu size={26} />}
       </button>
 
-      {/* Panou mobil derulant */}
+      {}
       {mobileOpen && (
         <div
           className="md:hidden"
