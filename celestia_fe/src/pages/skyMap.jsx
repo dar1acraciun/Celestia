@@ -1,1 +1,1 @@
-export {default} from '../features/skyMap'
+export { default } from '../features/skymap'
