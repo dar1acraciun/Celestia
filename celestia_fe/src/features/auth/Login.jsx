@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
 import logo from '../../assets/fullLogo.png'
 import { loginUser } from './api'
 import { useAuth } from '../../context/AuthContext'
 
 function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isLoggedIn } = useAuth()
+
+  if (isLoggedIn) return <Navigate to="/" replace />
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')

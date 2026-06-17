@@ -1,10 +1,14 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
 import logo from '../../assets/fullLogo.png'
 import { registerUser } from './api'
+import { useAuth } from '../../context/AuthContext'
 
 function Register() {
   const navigate = useNavigate()
+  const { isLoggedIn } = useAuth()
+
+  if (isLoggedIn) return <Navigate to="/" replace />
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
