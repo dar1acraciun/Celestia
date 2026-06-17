@@ -7,13 +7,13 @@ import { useAuth } from '../../context/AuthContext'
 function Register() {
   const navigate = useNavigate()
   const { isLoggedIn } = useAuth()
-
-  if (isLoggedIn) return <Navigate to="/" replace />
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  if (isLoggedIn) return <Navigate to="/" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()

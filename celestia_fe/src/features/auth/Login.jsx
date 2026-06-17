@@ -7,12 +7,12 @@ import { useAuth } from '../../context/AuthContext'
 function Login() {
   const navigate = useNavigate()
   const { login, isLoggedIn } = useAuth()
-
-  if (isLoggedIn) return <Navigate to="/" replace />
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  if (isLoggedIn) return <Navigate to="/" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
