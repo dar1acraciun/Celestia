@@ -13,6 +13,7 @@ import SkyMap from './pages/SkyMap'
 import Profile from './pages/Profile'
 import HistoryDetail from './pages/HistoryDetail'
 import ConstellationDetail from './pages/ConstellationDetail'
+import AboutUs from './pages/AboutUs'
 
 function App() {
   useEffect(() => {
@@ -36,6 +37,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/history/:id" element={<HistoryDetail />} />
             <Route path="/constellation/:name" element={<ConstellationDetail />} />
+            <Route path="/about" element={<AboutUs />} />
           </Route>
           <Route element={<NavbarOnlyLayout />}>
             <Route path="/skymap" element={<SkyMap />} />

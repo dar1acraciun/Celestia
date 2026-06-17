@@ -1,4 +1,4 @@
-export const findNearestStar = (starData, camera, mx, my, W, H, threshold = 18) => {
+export const findNearestStar = (starData, camera, mx, my, W, H, threshold = 8) => {
   let bestDist = threshold, bestStar = null
   starData.forEach(sd => {
     const v = sd.pos.clone().project(camera)

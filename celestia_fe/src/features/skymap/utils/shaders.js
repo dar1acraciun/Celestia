@@ -20,41 +20,24 @@ export const makeSkyMaterial = () => new tr.ShaderMaterial({
   ].join('\n'),
 })
 
-export const makeGroundMaterial = (grassTex, grassPat) => new tr.ShaderMaterial({
-  uniforms: {
-    tBase:   { value: grassTex },
-    tDetail: { value: grassPat },
-  },
+export const makeGroundMaterial = () => new tr.ShaderMaterial({
   vertexShader: [
-    'varying vec2 vUv;',
-    'varying float vDist;',
     'varying float vR;',
     'void main() {',
-    '  vUv = uv;',
     '  vR  = length(position.xy);',
     '  float curve = vR * vR / 11000.0;',
     '  vec3 pos = vec3(position.xy, position.z - curve);',
-    '  vDist = length((modelMatrix * vec4(pos, 1.0)).xyz);',
     '  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
     '}'
   ].join('\n'),
   fragmentShader: [
-    'uniform sampler2D tBase;',
-    'uniform sampler2D tDetail;',
-    'varying vec2 vUv;',
-    'varying float vDist;',
     'varying float vR;',
     'void main() {',
     '  if (vR > 895.0) discard;',
-    '  vec4 base   = texture2D(tBase,   vUv);',
-    '  vec4 detail = texture2D(tDetail, vUv * 5.0);',
-    '  vec3 grass  = base.rgb * detail.rgb * 2.0;',
-    '  float lum   = dot(grass, vec3(0.299,0.587,0.114));',
-    '  vec3 night  = mix(vec3(lum)*vec3(0.12,0.18,0.22), grass*0.08, 0.3);',
     '  float fog   = clamp(vR / 700.0, 0.0, 1.0);',
     '  fog = fog * fog * fog;',
     '  vec3 fogCol = vec3(0.02, 0.05, 0.11);',
-    '  vec3 final  = mix(night, fogCol, fog);',
+    '  vec3 final  = mix(vec3(0.01, 0.02, 0.04), fogCol, fog);',
     '  gl_FragColor = vec4(final, 1.0);',
     '}'
   ].join('\n'),
