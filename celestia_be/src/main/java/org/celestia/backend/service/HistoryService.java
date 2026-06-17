@@ -9,6 +9,7 @@ import org.celestia.generated.model.HistoryListResponse;
 import org.celestia.generated.model.HistoryRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class HistoryService {
 
     public HistoryListResponse getHistory(int page,int limit){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<HistoryObject> result=historyRepository.findByUserId(user.getId(), PageRequest.of(page, limit));
+        Page<HistoryObject> result=historyRepository.findByUserId(user.getId(), PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         return historyMapper.toHistoryListResponse(result.getContent(), result.getTotalElements(), page, limit);
 

@@ -20,7 +20,7 @@ function AstrometryCard({ data }) {
       >
         Astrometry.net
       </p>
-      {entry.astrometry.constellation ? (
+      {data.constellation ? (
         <>
           <h2
             style={{
@@ -30,9 +30,9 @@ function AstrometryCard({ data }) {
               marginBottom: "0.5rem",
             }}
           >
-            {entry.astrometry.constellation}
+            {data.constellation}
           </h2>
-          {entry.astrometry.objects_in_field?.length > 0 && (
+          {data.objects_in_field?.length > 0 && (
             <>
               <p
                 style={{
@@ -52,7 +52,7 @@ function AstrometryCard({ data }) {
                   gap: "4px",
                 }}
               >
-                {entry.astrometry.objects_in_field.map((obj) => (
+                {data.objects_in_field.map((obj) => (
                   <li
                     key={obj}
                     style={{ color: "#9999b3", fontSize: "0.9rem" }}
