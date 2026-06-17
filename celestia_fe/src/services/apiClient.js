@@ -1,11 +1,16 @@
 const BASE_URL = import.meta.env.VITE_API_URL
 const ML_URL = import.meta.env.VITE_ML_URL
 
+function authHeaders() {
+  const token = localStorage.getItem('token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 export async function request(path, body) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(body),
   })
   const data = await res.json().catch(() => ({}))
@@ -23,7 +28,10 @@ export async function mlRequest(path, imageFile) {
 }
 
 export async function get(path) {
-  const res = await fetch(`${BASE_URL}${path}`, { credentials: 'include' })
+  const res = await fetch(`${BASE_URL}${path}`, {
+    credentials: 'include',
+    headers: { ...authHeaders() },
+  })
   return res.json()
 }
 
@@ -31,6 +39,7 @@ export async function postForm(path, formData) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
     credentials: 'include',
+    headers: { ...authHeaders() },
     body: formData,
   })
   const data = await res.json().catch(() => ({}))

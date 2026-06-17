@@ -4,18 +4,18 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(
-    () => sessionStorage.getItem('isLoggedIn') === 'true'
+    () => !!localStorage.getItem('token')
   )
 
-  function login(email) {
-    sessionStorage.setItem('isLoggedIn', 'true')
-    sessionStorage.setItem('userEmail', email)
+  function login(email, token) {
+    if (token) localStorage.setItem('token', token)
+    localStorage.setItem('userEmail', email)
     setIsLoggedIn(true)
   }
 
   function logout() {
-    sessionStorage.removeItem('isLoggedIn')
-    sessionStorage.removeItem('userEmail')
+    localStorage.removeItem('token')
+    localStorage.removeItem('userEmail')
     setIsLoggedIn(false)
   }
 

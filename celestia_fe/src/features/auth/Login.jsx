@@ -19,8 +19,8 @@ function Login() {
     setError('')
     setLoading(true)
     try {
-      await loginUser(email, password)
-      login(email)
+      const data = await loginUser(email, password)
+      login(email, data.token)
       navigate('/')
     } catch (err) {
       setError(err.message)
