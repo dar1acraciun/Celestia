@@ -29,4 +29,16 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(HttpStatus.NOT_FOUND.value(),e.getMessage());
     }
 
+    @ExceptionHandler(value = ClassCastException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public @ResponseBody ErrorMessage classCastException(ClassCastException e) {
+        return new ErrorMessage(HttpStatus.UNAUTHORIZED.value(), "Unauthorized");
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public @ResponseBody ErrorMessage genericException(Exception e) {
+        return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
+    }
+
 }

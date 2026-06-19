@@ -10,7 +10,7 @@ function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const navigate = useNavigate()
 
-  const email = sessionStorage.getItem('userEmail') || ''
+  const email = localStorage.getItem('userEmail') || ''
   const initials = email.slice(0, 2).toUpperCase()
 
   function handleLogout() {

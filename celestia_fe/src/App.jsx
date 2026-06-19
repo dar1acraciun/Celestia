@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import MainLayout from './layouts/MainLayout'
 import NavbarOnlyLayout from './layouts/NavbarOnlyLayout'
 import Home from './pages/Home'
@@ -14,6 +14,11 @@ import Profile from './pages/Profile'
 import HistoryDetail from './pages/HistoryDetail'
 import ConstellationDetail from './pages/ConstellationDetail'
 import AboutUs from './pages/AboutUs'
+
+function ProtectedRoute({ children }) {
+  const { isLoggedIn } = useAuth()
+  return isLoggedIn ? children : <Navigate to="/login" replace />
+}
 
 function App() {
   useEffect(() => {
@@ -34,8 +39,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/identify" element={<Identify />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/history/:id" element={<HistoryDetail />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/history/:id" element={<ProtectedRoute><HistoryDetail /></ProtectedRoute>} />
             <Route path="/constellation/:name" element={<ConstellationDetail />} />
             <Route path="/about" element={<AboutUs />} />
           </Route>

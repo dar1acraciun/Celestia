@@ -19,7 +19,10 @@ export function useHistory() {
         setEntries(historyData.entries || [])
         setChatSessions(chatData.sessions || [])
       })
-      .catch(() => {})
+      .catch(() => {
+        logout()
+        navigate('/login')
+      })
       .finally(() => setLoading(false))
   }, [])
 

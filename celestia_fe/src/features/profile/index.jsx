@@ -15,9 +15,11 @@ function Profile() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{
               width: '56px', height: '56px', borderRadius: '50%',
-              background: '#0d2857', border: '1px solid rgba(79,142,247,0.3)',
+              background: 'linear-gradient(135deg, #1a3a6b, #0d2857)',
+              border: '1px solid rgba(79,142,247,0.5)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.4rem', fontWeight: 700, color: '#e8e8f0',
+              fontSize: '1.4rem', fontWeight: 700, color: '#ffffff',
+              flexShrink: 0,
             }}>
               {initials}
             </div>
