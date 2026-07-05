@@ -38,15 +38,19 @@ JwtAuthFilter extends OncePerRequestFilter {
         if (token == null) token = extractTokenFromCookie(request);
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            String email = jwtService.extractEmailFromToken(token);
-            Optional<User> userOpt = userRepository.findByEmail(email);
+            try {
+                String email = jwtService.extractEmailFromToken(token);
+                Optional<User> userOpt = userRepository.findByEmail(email);
 
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-                if (jwtService.validateToken(token, user)) {
-                    var auth = new UsernamePasswordAuthenticationToken(user, null, List.of());
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                if (userOpt.isPresent()) {
+                    User user = userOpt.get();
+                    if (jwtService.validateToken(token, user)) {
+                        var auth = new UsernamePasswordAuthenticationToken(user, null, List.of());
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
+            } catch (io.jsonwebtoken.JwtException e) {
+                // Invalid/expired token: proceed unauthenticated, let downstream security rules decide.
             }
         }
 
