@@ -19,7 +19,12 @@ public class GroqService {
 
     private static final Logger log = LoggerFactory.getLogger(GroqService.class);
     private static final String BASE_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private static final String MODEL = "llama-3.3-70b-versatile";
+
+    // Model is configurable so it can be changed without a recompile when Groq
+    // deprecates a model. Default is a current GroqCloud production model
+    // (llama-3.3-70b-versatile was retired on 2026-08-16).
+    @Value("${groq.model:openai/gpt-oss-120b}")
+    private String model;
 
     @Value("${groq.api-key}")
     private String apiKey;
@@ -106,7 +111,7 @@ public class GroqService {
         fullMessages.addAll(messages);
 
         Map<String, Object> body = Map.of(
-                "model", MODEL,
+                "model", model,
                 "messages", fullMessages,
                 "temperature", 0.7
         );
