@@ -1,7 +1,20 @@
 import * as tr from 'three'
-import { eqVec } from '../utils/astronomy'
-import { ciToColor, makeStarTexture, makeLabel, makeRingTexture } from '../utils/texture'
+import { eqVec, altAzLookTarget } from '../utils/astronomy'
+import { ciToColor, makeStarTexture, makeLabel, makeHorizonLabel, makeRingTexture } from '../utils/texture'
 import { makeGroundMaterial, makeStarMaterial } from '../utils/shaders'
+
+export const buildHorizonLabels = (scene, lst_deg, lat_deg) => {
+  const DIRS = [['N', 0], ['E', 90], ['S', 180], ['W', 270]]
+  const labels = []
+  DIRS.forEach(([text, az]) => {
+    const sprite = makeHorizonLabel(text)
+    sprite.position.copy(altAzLookTarget(-2, az, lst_deg, lat_deg))
+    sprite.visible = true
+    scene.add(sprite)
+    labels.push({ sprite, az })
+  })
+  return labels
+}
 
 export const buildGround = (scene, zenith) => {
   const groundMesh = new tr.Mesh(

@@ -162,7 +162,7 @@ export const setupEventHandlers = (mount, camera, view, {
 }
 
 export const startAnimLoop = (renderer, scene, camera, {
-  view, groundMesh, starMatRef, meteorsRef, LON, LAT,
+  view, groundMesh, starMatRef, meteorsRef, horizonLabelsRef, LON, LAT,
 }) => {
   const getVirtualDate = () => new Date(Date.now())
 
@@ -185,10 +185,17 @@ export const startAnimLoop = (renderer, scene, camera, {
 
     if (starMatRef.current) starMatRef.current.uniforms.uTime.value = elapsed
 
-    const curZenith = eqVec(getLST(getVirtualDate(), LON), LAT, 1).normalize()
+    const lstNow    = getLST(getVirtualDate(), LON)
+    const curZenith = eqVec(lstNow, LAT, 1).normalize()
     if (groundMesh) {
       groundMesh.lookAt(curZenith)
       groundMesh.position.copy(curZenith.clone().negate().multiplyScalar(8))
+    }
+
+    if (horizonLabelsRef?.current) {
+      horizonLabelsRef.current.forEach(l => {
+        l.sprite.position.copy(altAzLookTarget(-2, l.az, lstNow, LAT))
+      })
     }
 
     for (let i = meteorsRef.current.length - 1; i >= 0; i--) {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import * as tr from 'three'
 import { getLST, eqVec } from '../utils/astronomy'
 import { makeSkyMaterial } from '../utils/shaders'
-import { buildGround, buildStars, buildConstellations } from './useSceneBuilder'
+import { buildGround, buildStars, buildConstellations, buildHorizonLabels } from './useSceneBuilder'
 import { setupEventHandlers, startAnimLoop } from './useSceneEvents'
 
 export function useSkyMap() {
@@ -15,6 +15,7 @@ export function useSkyMap() {
   const labelsRef   = useRef([])
   const meteorsRef  = useRef([])
   const conNamesRef = useRef({})
+  const horizonLabelsRef = useRef([])
   const navigate    = useNavigate()
   
   const [status,  setStatus]  = useState('Se obține locația GPS...')
@@ -45,6 +46,7 @@ export function useSkyMap() {
       const view   = { az: 180, alt: 30 }
 
       const groundMesh = buildGround(scene, zenith)
+      horizonLabelsRef.current = buildHorizonLabels(scene, lst0, LAT)
 
       Promise.all([
         fetch('/data/data/stars_full.json').then(r => r.json()),
@@ -65,7 +67,7 @@ export function useSkyMap() {
       })
 
       const cleanupAnim = startAnimLoop(renderer, scene, camera, {
-        view, groundMesh, starMatRef, meteorsRef, LON, LAT,
+        view, groundMesh, starMatRef, meteorsRef, horizonLabelsRef, LON, LAT,
       })
 
       mount._cleanup = () => {

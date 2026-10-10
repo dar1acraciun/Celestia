@@ -46,6 +46,29 @@ export const makeLabel = (text) => {
   return sprite;
 };
 
+export const makeHorizonLabel = (text) => {
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 128;
+  const ctx = c.getContext("2d");
+  ctx.font = "500 64px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(90,20,20,0.9)";
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = "#8b2020";
+  ctx.fillText(text.toUpperCase(), 64, 68);
+  const sprite = new tr.Sprite(
+    new tr.SpriteMaterial({
+      map: new tr.CanvasTexture(c),
+      transparent: true,
+      depthWrite: false,
+    }),
+  );
+  sprite.scale.set(60, 60, 1);
+  return sprite;
+};
+
 export const makeRingTexture = () => {
   const c = document.createElement("canvas");
   c.width = c.height = 64;
