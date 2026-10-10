@@ -20,6 +20,7 @@ export function useSkyMap() {
   
   const [status,  setStatus]  = useState('Se obține locația GPS...')
   const [tooltip, setTooltip] = useState(null)
+  const [coords,  setCoords]  = useState({ lat: 44.4, lon: 26.1 })
 
   useEffect(() => {
     const mount = mountRef.current
@@ -77,8 +78,15 @@ export function useSkyMap() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      pos => initScene(pos.coords.latitude, pos.coords.longitude),
-      ()  => { setStatus('GPS indisponibil — București'); initScene(44.4, 26.1) }
+      pos => {
+        setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude })
+        initScene(pos.coords.latitude, pos.coords.longitude)
+      },
+      ()  => {
+        setStatus('GPS indisponibil — București')
+        setCoords({ lat: 44.4, lon: 26.1 })
+        initScene(44.4, 26.1)
+      }
     )
 
     return () => {
@@ -88,5 +96,5 @@ export function useSkyMap() {
     }
   }, [])
 
-  return { mountRef, status, tooltip, conNamesRef }
+  return { mountRef, status, tooltip, conNamesRef, coords }
 }

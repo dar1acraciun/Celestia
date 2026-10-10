@@ -1,8 +1,11 @@
 import { useSkyMap } from './hooks/useSkyMap'
 import StarTooltip from './components/StarTooltip'
+import SkyChat from './components/SkyChat'
 
 export default function SkyMap() {
-  const { mountRef, status, tooltip, conNamesRef } = useSkyMap()
+  const { mountRef, status, tooltip, conNamesRef, coords } = useSkyMap()
+  const lat = coords?.lat ?? 44.4
+  const lon = coords?.lon ?? 26.1
 
   return (
     <div style={{ position: 'fixed', inset: 0 }}>
@@ -19,6 +22,8 @@ export default function SkyMap() {
       )}
 
       <StarTooltip tooltip={tooltip} conNamesRef={conNamesRef} />
+
+      <SkyChat lat={lat} lon={lon} />
     </div>
   )
 }
