@@ -95,6 +95,19 @@ public class GroqService {
         }
     }
 
+    /**
+     * Phrasing entry point for arbitrary messages + a dynamically built system prompt. Wraps the
+     * private chat(...) in the same friendly-fallback try/catch used by the constellation chat.
+     */
+    public String chatRaw(List<Map<String, String>> messages, String systemPrompt) {
+        try {
+            return chat(messages, systemPrompt);
+        } catch (Exception e) {
+            log.warn("Groq sky-chat failed: {}", e.getMessage());
+            return "Sorry, something went wrong. Please try again.";
+        }
+    }
+
     private List<String> parseStringList(JsonNode node) {
         List<String> result = new ArrayList<>();
         if (node.isArray()) {

@@ -17,6 +17,8 @@ public class Constellation {
 
     private String name;
     private String abbreviation;
+    private Double centerRa;
+    private Double centerDec;
     private String description;
     private String mythology;
     private List<String> mainStars;

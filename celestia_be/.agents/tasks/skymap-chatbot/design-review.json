@@ -1,0 +1,30 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "severity": "NIT",
+      "location": "§3.5 rise-time solver",
+      "problem": "The sidereal-to-solar conversion factor 1.0027379 in deltaHours = deltaLstDeg / 15.0 * (1 / 1.0027379) is used without explanation. The math is correct but undocumented.",
+      "fix": "Add an inline comment at the implementation site: // 1.0027379 = mean sidereal days per solar day; converts the sidereal LST gap to elapsed solar time."
+    },
+    {
+      "severity": "NIT",
+      "location": "§2 openapi.yaml SkyChatResponse.visibility",
+      "problem": "The '# nullable' note is a YAML comment, not schema; in OpenAPI 3.0.1 a sibling nullable:true next to a $ref is ignored. visibility is therefore merely an optional/omittable property.",
+      "fix": "Keep visibility as an omittable property (do not add nullable:true beside the $ref). Ensure SkyChat.jsx treats visibility === undefined/null as 'no facts', which §8 already assumes."
+    },
+    {
+      "severity": "NIT",
+      "location": "§2 openapi.yaml VisibilityFacts.riseCompass",
+      "problem": "riseCompass lacks an example and a clear description, unlike every other field in the schema.",
+      "fix": "Add example: E and note it is an 8-point compass value (N/NE/E/SE/S/SW/W/NW)."
+    },
+    {
+      "severity": "NIT",
+      "location": "§1 RA/Dec source",
+      "problem": "The exclusion of spurious catalog con tags (e.g. 'Eco','Sir') is explained only in the Appendix; a reader of §1 alone might expect all catalog con codes to be used.",
+      "fix": "Add one sentence to §1: the table is built from the 88 FE constellations.json keys, not from catalog con tags, so stray tags are excluded."
+    }
+  ],
+  "reviewDoc": "/Users/dariacraciun/Desktop/icusi 2026/app/Celestia/celestia_be/.agents/tasks/skymap-chatbot/design-review.md"
+}

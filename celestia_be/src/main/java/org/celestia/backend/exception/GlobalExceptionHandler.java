@@ -29,6 +29,19 @@ public class GlobalExceptionHandler {
         return new ErrorMessage(HttpStatus.NOT_FOUND.value(),e.getMessage());
     }
 
+    @ExceptionHandler(value = InvalidSkyChatRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorMessage invalidSkyChatRequestException(InvalidSkyChatRequestException e) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    }
+
+    @ExceptionHandler(value = org.springframework.http.converter.HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorMessage httpMessageNotReadableException(
+            org.springframework.http.converter.HttpMessageNotReadableException e) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    }
+
     @ExceptionHandler(value = ClassCastException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public @ResponseBody ErrorMessage classCastException(ClassCastException e) {

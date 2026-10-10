@@ -143,6 +143,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ChatResponse'
 
+  /skymap/chat:
+    post:
+      operationId: chatWithSky
+      tags:
+        - SkyMap
+      summary: Ask the sky-map astronomy chatbot; backend computes constellation visibility
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkyChatRequest'
+      responses:
+        "200":
+          description: Assistant reply plus structured visibility facts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkyChatResponse'
+
   /history/chats:
     post:
       operationId: saveChatSession
@@ -467,6 +487,75 @@ components:
       properties:
         reply:
           type: string
+
+    SkyChatRequest:
+      type: object
+      required:
+        - messages
+        - latitude
+        - longitude
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        latitude:
+          type: number
+          format: double
+          example: 44.4
+        longitude:
+          type: number
+          format: double
+          example: 26.1
+        time:
+          type: string
+          format: date-time
+          description: ISO-8601 instant the map is rendering. If omitted, server uses now (UTC).
+          example: "2026-01-15T21:30:00Z"
+
+    SkyChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+        visibility:
+          $ref: '#/components/schemas/VisibilityFacts'
+
+    VisibilityFacts:
+      type: object
+      properties:
+        constellation:
+          type: string
+          example: Orion
+        abbreviation:
+          type: string
+          example: Ori
+        state:
+          type: string
+          description: One of VISIBLE, AT_HORIZON, BELOW_RISES, NEVER_VISIBLE
+          example: VISIBLE
+        altitudeDeg:
+          type: number
+          format: double
+          example: 34.2
+        azimuthDeg:
+          type: number
+          format: double
+          example: 128.5
+        compass:
+          type: string
+          example: SE
+        nextRiseUtc:
+          type: string
+          format: date-time
+          description: Present only for state BELOW_RISES. UTC instant of next upward horizon crossing.
+        nextRiseInHours:
+          type: number
+          format: double
+          description: Present only for state BELOW_RISES. Zone-independent delta in hours to nextRiseUtc.
+        riseCompass:
+          type: string
+          description: Present only for state BELOW_RISES
 
     SaveChatRequest:
       type: object

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-skymap-chatbot",
+  "task_description": "Add a sky-map astronomy chatbot to Celestia: a backend that deterministically computes a constellation's real-time visibility (altitude, azimuth/compass, next rise time, four-state classifier) for the map's current lat/lon/time and has an LLM phrase the facts, exposed at POST /skymap/chat; plus a frontend chat panel on the sky-map page threading the in-use lat/lon (real GPS or Bucharest 44.4/26.1 fallback) and current time. Realizes .agents/tasks/skymap-chatbot/design.md. Only ADD; no rendering changes; no commit/push; do not touch application.properties or mvnw.",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
