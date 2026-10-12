@@ -1,0 +1,5 @@
+# Git worktrees used for local experiments (e.g. function-calling branch)
+.worktrees/
+
+# OS / editor cruft
+.DS_Store
