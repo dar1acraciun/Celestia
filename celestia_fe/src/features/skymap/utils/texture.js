@@ -85,10 +85,10 @@ export const makeRingTexture = () => {
 
 export const spectralType = (ci) => {
   if (ci === null || ci === undefined) return "";
-  if (ci < -0.3) return "O/B · albastru";
-  if (ci < 0.0) return "A · alb-albăstrui";
-  if (ci < 0.3) return "F · alb";
-  if (ci < 0.6) return "G · galben";
-  if (ci < 1.0) return "K · portocaliu";
-  return "M · roșu";
+  if (ci < -0.3) return "O/B · blue";
+  if (ci < 0.0) return "A · blue-white";
+  if (ci < 0.3) return "F · white";
+  if (ci < 0.6) return "G · yellow";
+  if (ci < 1.0) return "K · orange";
+  return "M · red";
 };

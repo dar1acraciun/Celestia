@@ -3,7 +3,7 @@ import StarTooltip from './components/StarTooltip'
 import SkyChat from './components/SkyChat'
 
 export default function SkyMap() {
-  const { mountRef, status, tooltip, conNamesRef, coords } = useSkyMap()
+  const { mountRef, status, tooltip, conNamesRef, coords, focusConstellation, clearHighlight } = useSkyMap()
   const lat = coords?.lat ?? 44.4
   const lon = coords?.lon ?? 26.1
 
@@ -23,7 +23,7 @@ export default function SkyMap() {
 
       <StarTooltip tooltip={tooltip} conNamesRef={conNamesRef} />
 
-      <SkyChat lat={lat} lon={lon} />
+      <SkyChat lat={lat} lon={lon} onShow={focusConstellation} onPanelClose={clearHighlight} />
     </div>
   )
 }

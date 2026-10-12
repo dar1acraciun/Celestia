@@ -24,7 +24,10 @@ export function useSkyChat(lat, lon, onClose) {
 
     try {
       const res = await chatWithSky(updated, lat, lon, new Date().toISOString())
-      setMessages((prev) => [...prev, { role: 'assistant', content: res.reply }])
+      // Attach the facts to the assistant bubble so a "Show me" button can be
+      // gated/rendered on the correct message (purely additive — the top-level
+      // visibility state below still drives the rise chip).
+      setMessages((prev) => [...prev, { role: 'assistant', content: res.reply, visibility: res.visibility ?? null }])
       setVisibility(res.visibility ?? null)
     } catch {
       setMessages((prev) => [...prev, { role: 'assistant', content: 'Something went wrong. Please try again.' }])

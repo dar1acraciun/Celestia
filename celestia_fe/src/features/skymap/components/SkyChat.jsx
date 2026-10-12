@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { X, Send, Sparkles } from "lucide-react";
 import { useSkyChat } from "../hooks/useSkyChat";
 
-export default function SkyChat({ lat, lon }) {
+export default function SkyChat({ lat, lon, onShow, onPanelClose }) {
   const [open, setOpen] = useState(false);
 
   // Floating launcher — map stays interactive behind it.
@@ -34,14 +34,32 @@ export default function SkyChat({ lat, lon }) {
     );
   }
 
-  return <SkyChatPanel lat={lat} lon={lon} onClose={() => setOpen(false)} />;
+  return (
+    <SkyChatPanel
+      lat={lat}
+      lon={lon}
+      onShow={onShow}
+      onPanelClose={onPanelClose}
+      onClose={() => setOpen(false)}
+    />
+  );
 }
 
-function SkyChatPanel({ lat, lon, onClose }) {
+function SkyChatPanel({ lat, lon, onShow, onPanelClose, onClose }) {
+  // Close also clears the sky highlight overlay so nothing lingers behind the
+  // closed panel (no leaked geometry/material).
+  const closePanel = () => {
+    onPanelClose?.();
+    onClose();
+  };
   const { messages, input, setInput, loading, visibility, send, onKey, handleClose } =
-    useSkyChat(lat, lon, onClose);
+    useSkyChat(lat, lon, closePanel);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  // Which assistant message currently has the sky pointed at it (highlighted
+  // button). Local UI state only — reset handled naturally when the panel
+  // unmounts on close.
+  const [activeShown, setActiveShown] = useState(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -119,40 +137,78 @@ function SkyChatPanel({ lat, lon, onClose }) {
             gap: "0.85rem",
           }}
         >
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
-              }}
-            >
+          {messages.map((msg, i) => {
+            // "Show me" only on assistant replies for a locatable, currently-up
+            // constellation (VISIBLE or AT_HORIZON). No button for
+            // BELOW_RISES / NEVER_VISIBLE — the sky can't slide below horizon.
+            const canShow =
+              msg.role === "assistant" &&
+              msg.visibility &&
+              (msg.visibility.state === "VISIBLE" ||
+                msg.visibility.state === "AT_HORIZON");
+            const isActive = activeShown === i;
+            return (
               <div
+                key={i}
                 style={{
-                  maxWidth: "82%",
-                  padding: "0.65rem 0.95rem",
-                  borderRadius:
-                    msg.role === "user"
-                      ? "1rem 1rem 0.2rem 1rem"
-                      : "1rem 1rem 1rem 0.2rem",
-                  background:
-                    msg.role === "user"
-                      ? "rgba(74, 144, 217, 0.25)"
-                      : "rgba(255,255,255,0.06)",
-                  border:
-                    msg.role === "user"
-                      ? "1px solid rgba(74,144,217,0.3)"
-                      : "1px solid rgba(255,255,255,0.08)",
-                  color: "#e8e8f0",
-                  fontSize: "0.875rem",
-                  lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: msg.role === "user" ? "flex-end" : "flex-start",
                 }}
               >
-                {msg.content.replace(/\*\*(.*?)\*\*/g, "$1")}
+                <div
+                  style={{
+                    maxWidth: "82%",
+                    padding: "0.65rem 0.95rem",
+                    borderRadius:
+                      msg.role === "user"
+                        ? "1rem 1rem 0.2rem 1rem"
+                        : "1rem 1rem 1rem 0.2rem",
+                    background:
+                      msg.role === "user"
+                        ? "rgba(74, 144, 217, 0.25)"
+                        : "rgba(255,255,255,0.06)",
+                    border:
+                      msg.role === "user"
+                        ? "1px solid rgba(74,144,217,0.3)"
+                        : "1px solid rgba(255,255,255,0.08)",
+                    color: "#e8e8f0",
+                    fontSize: "0.875rem",
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {msg.content.replace(/\*\*(.*?)\*\*/g, "$1")}
+                </div>
+
+                {canShow && (
+                  <button
+                    onClick={() => {
+                      onShow?.(msg.visibility);
+                      setActiveShown(i);
+                    }}
+                    style={{
+                      marginTop: "0.4rem",
+                      padding: "0.35rem 0.75rem",
+                      borderRadius: "0.75rem",
+                      background: isActive
+                        ? "rgba(74, 144, 217, 0.35)"
+                        : "rgba(74, 144, 217, 0.15)",
+                      border: isActive
+                        ? "1px solid rgba(138,180,255,0.7)"
+                        : "1px solid rgba(74,144,217,0.3)",
+                      color: "#8ab4ff",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                      transition: "background 0.2s, border-color 0.2s",
+                    }}
+                  >
+                    {isActive ? "Showing" : "Show me"}
+                  </button>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {riseChip && (
             <div style={{ display: "flex", justifyContent: "flex-start" }}>

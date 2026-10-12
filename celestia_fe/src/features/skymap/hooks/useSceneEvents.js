@@ -26,11 +26,15 @@ const spawnMeteor = (scene, meteorsRef) => {
 }
 
 export const setupEventHandlers = (mount, camera, view, {
-  starDataRef, hoverRef, meteorsRef, conNamesRef, setTooltip, navigate, LON, LAT,
+  starDataRef, hoverRef, meteorsRef, conNamesRef, setTooltip, navigate, LON, LAT, focusAnimRef,
 }) => {
   let dragging = false, lastX = 0, lastY = 0, didDrag = false
 
-  const onDown  = e => { dragging = true; didDrag = false; lastX = e.clientX; lastY = e.clientY }
+  // Phase 2: a user drag cancels any in-flight "Show me" slide tween so the
+  // user instantly regains manual control (the tween loop checks this flag).
+  const cancelFocus = () => { if (focusAnimRef) focusAnimRef.current.cancel = true }
+
+  const onDown  = e => { cancelFocus(); dragging = true; didDrag = false; lastX = e.clientX; lastY = e.clientY }
   const onUp    = () => { dragging = false }
   const onLeave = () => {
     if (hoverRef.current) hoverRef.current.visible = false
@@ -86,6 +90,7 @@ export const setupEventHandlers = (mount, camera, view, {
   }
 
   const onTouchStart = e => {
+    cancelFocus()
     if (e.touches.length === 1) {
       dragging = true; didDrag = false
       lastX = e.touches[0].clientX; lastY = e.touches[0].clientY
